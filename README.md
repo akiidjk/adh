@@ -7,6 +7,8 @@ I just wanted to create my own webhook to deploy on a VPS, avoiding dependencies
 
 The core of this project is a simple webhook server that listens for incoming HTTP requests, logs the relevant information, and stores request data in Redis. It is built with Go for the backend and uses Redis for storage. The project aims to be lightweight, flexible, and simple to set up, but with room for expansion (such as adding a dashboard).
 
+![img](/images/adh-schema.png)
+
 ### Features
 
 - **Data Logging**: Logs requests including headers, cookies, body content, and user agent.
