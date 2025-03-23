@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  webhook:
+    build: ./adh-webhook
+    container_name: webhook
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=${PORT}
+      - ADDR=${ADDR}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - REDIS_ADDR=${REDIS_ADDR}
+      - REDIS_PORT=${REDIS_PORT}
+    depends_on:
+      - redis
+    volumes:
+      - ./adh-webhook/logs:/var/log/webhook
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:
+    driver: local
