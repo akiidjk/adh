@@ -1,12 +1,23 @@
 import { createClient } from 'redis';
 
-export async function GET(req) {
-  const client = createClient({ url: 'redis://localhost:6379' });
-  await client.connect();
+export async function GET(req: Request) {
+  const client = createClient({ url: 'redis://localhost:6379', socket: { connectTimeout: 5000 } });
+  await client.connect().catch(() => {
+    return new Response("Redis connection failed", { status: 500 });
+  });
 
   const stream = new ReadableStream({
     async start(controller) {
-      let lastID = "$"; // "$" = solo nuovi messaggi
+      let lastID = "$";
+      const messageQueue: string[] = []; // Coda per i messaggi
+
+      async function processQueue() {
+        while (messageQueue.length > 0 && !req.signal.aborted) {
+          const message = messageQueue.shift()!;
+          controller.enqueue(message);
+          await new Promise(resolve => setTimeout(resolve, 10));
+        }
+      }
 
       try {
         while (!req.signal.aborted) {
@@ -15,7 +26,7 @@ export async function GET(req) {
             { COUNT: 1, BLOCK: 5000 }
           );
 
-          if (!results || results.length === 0) continue;
+          if (!results) continue;
 
           for (const { messages } of results) {
             for (const { id, message } of messages) {
@@ -23,27 +34,26 @@ export async function GET(req) {
               const values = Object.values(message);
 
               if (values.length >= 2) {
-                const obj: Record<string, string> = {};
-                obj[values[0] as string] = values[1] as string;
-                controller.enqueue('data: ' + JSON.stringify(obj) + '\n\n');
+                const data = JSON.stringify({ [values[0]]: values[1] })
+                  .replace(/\n/g, "\\n");
+
+                messageQueue.push(`data: ${data}\n\n`);
+                await processQueue();
               }
             }
           }
         }
       } catch (err) {
-        console.error("Redis stream error:", err);
+        console.error("Stream error:", err);
+        controller.enqueue(`event: error\ndata: ${JSON.stringify({ error: "Stream failed" })}\n\n`);
       } finally {
-        await client.disconnect();
+        await client.quit().catch(() => { });
         controller.close();
       }
     },
   });
 
   return new Response(stream, {
-    headers: {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      "Connection": "keep-alive",
-    },
+    headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache" },
   });
 }

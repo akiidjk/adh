@@ -1,6 +1,6 @@
 import { createClient } from 'redis';
 
-export async function GET(req) {
+export async function GET() {
   const client = createClient({ url: 'redis://localhost:6379' });
   await client.connect();
 
