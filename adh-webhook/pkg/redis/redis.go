@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/akiidjk/adh-webhook/pkg/logger"
+	"github.com/akiidjk/adh-webhook/pkg/models"
 	"github.com/akiidjk/adh-webhook/pkg/utils"
 	"github.com/redis/go-redis/v9"
 )
@@ -39,9 +40,14 @@ func AddRequest(key string, value string) error {
 		return err
 	}
 
+	msg := models.StreamMessage{
+		Key:   key,
+		Value: value,
+	}
+
 	return client.XAdd(ctx, &redis.XAddArgs{
 		Stream: "data_stream",
-		Values: map[string]interface{}{"key": key, "value": value},
+		Values: msg,
 	}).Err()
 }
 
