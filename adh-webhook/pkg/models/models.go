@@ -9,7 +9,7 @@ type Report struct {
 	URI            string            `json:"uri"`
 	Cookies        string            `json:"cookies"`
 	Referrer       string            `json:"referrer"`
-	UserAgent      string            `json:"user-agent"`
+	UserAgent      string            `json:"user_agent"`
 	Origin         string            `json:"origin"`
 	Lang           string            `json:"lang"`
 	GPU            string            `json:"gpu"`
@@ -33,4 +33,9 @@ type Request struct {
 	PostForm      url.Values          `json:"postform"`
 	Report        Report              `json:"report"`
 	TimeStamp     string              `json:"timestamp"`
+}
+
+type StreamMessage struct {
+	Key   string `redis:"key"`
+	Value string `redis:"value"`
 }
