@@ -90,7 +90,7 @@ This will log the request data and store it in Redis.
 
 ### To-Do
 
-- **Dashboard**: The current project lacks a UI dashboard to visualize requests and data. This will be added in the future.
+- **Dashboard**: The current project lacks a UI dashboard to visualize requests and data. This will be added in the future (In progess).
 - **Authentication**: Implement an authentication mechanism to restrict access to the webhook dashboard.
 
 ### Contributing
