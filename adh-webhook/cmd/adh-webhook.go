@@ -30,13 +30,14 @@ func setCORSHeaders(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Methods", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "*")
 	w.Header().Set("Access-Control-Max-Age", "86400")
+	w.Header().Set("Vary", "Origin")
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	setCORSHeaders(w)
 
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusNoContent)
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 
@@ -96,6 +97,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func getExploit(w http.ResponseWriter, r *http.Request) {
 	logger.Debug("Serving exploit script")
+	setCORSHeaders(w)
 	w.Header().Set("Content-Type", "application/javascript")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(http.StatusOK)
