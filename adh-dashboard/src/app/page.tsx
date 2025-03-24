@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button"
+import StreamComponent from "@/components/ui/streamcomp"
 
 export default function Home() {
   return (
     <div>
-      <Button>Click me</Button>
+      <StreamComponent></StreamComponent>
     </div>
   )
 }
