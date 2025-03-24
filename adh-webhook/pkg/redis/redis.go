@@ -33,7 +33,16 @@ func init() {
 func AddRequest(key string, value string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
-	return client.Set(ctx, key, value, 7*24*time.Hour).Err()
+
+	err := client.Set(ctx, key, value, 7*24*time.Hour).Err()
+	if err != nil {
+		return err
+	}
+
+	return client.XAdd(ctx, &redis.XAddArgs{
+		Stream: "data_stream",
+		Values: map[string]interface{}{"key": key, "value": value},
+	}).Err()
 }
 
 func RedisHealthChecker(stop chan bool, status chan bool) {
