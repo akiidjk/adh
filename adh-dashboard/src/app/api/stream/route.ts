@@ -1,7 +1,10 @@
+"use server";
+
+import { getRedisUrl } from '@/config';
 import { createClient } from 'redis';
 
 export async function GET(req: Request) {
-  const client = createClient({ url: 'redis://localhost:6379', socket: { connectTimeout: 5000 } });
+  const client = createClient({ url: await getRedisUrl() });
   await client.connect().catch(() => {
     return new Response("Redis connection failed", { status: 500 });
   });

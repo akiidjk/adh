@@ -1,7 +1,10 @@
+"use server";
+
+import { getRedisUrl } from '@/config';
 import { createClient } from 'redis';
 
 export async function GET() {
-  const client = createClient({ url: 'redis://localhost:6379' });
+  const client = createClient({ url: await getRedisUrl() });
   await client.connect();
 
   try {

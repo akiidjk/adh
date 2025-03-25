@@ -1,12 +1,14 @@
+"use server";
+
 import { createClient } from 'redis';
+import { getRedisUrl } from '@/config';
 import { NextResponse } from 'next/server';
 
+
 export async function DELETE(request: Request) {
-  const client = createClient({ url: 'redis://localhost:6379' });
+  const client = createClient({ url: await getRedisUrl() });
 
   try {
-    await client.connect();
-
     const { id } = await request.json();
 
     if (!id) {
@@ -37,6 +39,6 @@ export async function DELETE(request: Request) {
       { status: 500 }
     );
   } finally {
-    await client.quit();
+    await client.disconnect();
   }
 }
