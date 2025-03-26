@@ -1,4 +1,6 @@
-version: "3.8"
+networks:
+  adh_network:
+    driver: bridge
 
 services:
   webhook:
@@ -17,29 +19,41 @@ services:
       - redis
     volumes:
       - ./adh-webhook/logs:/var/log/webhook
+    networks:
+      - adh_network
 
-  dashboard:
-    build: ./adh-dashboard
-    container_name: dashboard
-    ports:
-      - "3000:3000"
-    environment:
-      - REDIS_URL=${REDIS_URL}
-      - USER_ID=${USER_ID}
-      - USER_EMAIL=${USER_EMAIL}
-      - USER_PASSWORD=${USER_PASSWORD}
-    depends_on:
-      - redis
-    volumes:
-      - ./adh-dashboard/logs:/var/log/dashboard
+  # dashboard:
+  #   build: ./adh-dashboard
+  #   container_name: dashboard
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - REDIS_URL=${REDIS_URL}
+  #     - USER_ID=${USER_ID}
+  #     - USER_EMAIL=${USER_EMAIL}
+  #     - USER_PASSWORD=${USER_PASSWORD}
+  #   depends_on:
+  #     - redis
+  #   volumes:
+  #     - ./adh-dashboard/logs:/var/log/dashboard
+  #   networks:
+  #     - adh_network
 
   redis:
-    image: redis:latest
+    image: redis:7.4.2-alpine
     container_name: redis
+    command: >
+      redis-server
+      --maxclients 10000
+      --tcp-keepalive 300
+      --timeout 0
+      --lazyfree-lazy-expire yes
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - adh_network
 
 volumes:
   redis_data:
