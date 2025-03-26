@@ -9,11 +9,12 @@ export async function DELETE(request: Request) {
   const client = createClient({ url: await getRedisUrl() });
 
   try {
+    await client.connect();
     const { id } = await request.json();
 
     if (!id) {
       return NextResponse.json(
-        { error: "ID mancante nel corpo della richiesta" },
+        { error: "ID missing in the request body" },
         { status: 400 }
       );
     }
@@ -22,20 +23,20 @@ export async function DELETE(request: Request) {
 
     if (deletedCount === 1) {
       return NextResponse.json(
-        { success: true, message: `Elemento con ID ${id} rimosso` },
+        { success: true, message: `Element with ID ${id} removed` },
         { status: 200 }
       );
     } else {
       return NextResponse.json(
-        { success: false, error: `Elemento con ID ${id} non trovato` },
+        { success: false, error: `Element with ID ${id} not found` },
         { status: 404 }
       );
     }
 
   } catch (error) {
-    console.error("Errore durante l'eliminazione:", error);
+    console.error("Error during deletion:", error);
     return NextResponse.json(
-      { error: "Errore del server durante l'operazione" },
+      { error: "Error during deletion" },
       { status: 500 }
     );
   } finally {

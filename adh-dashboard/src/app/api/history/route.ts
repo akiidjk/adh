@@ -28,7 +28,6 @@ export async function GET() {
     keys.forEach((key) => pipeline.type(key));
     const types = await pipeline.exec();
 
-    // Filtra solo le chiavi di tipo "string"
     const filteredKeys = keys.filter((_, index) => types[index] === "string");
 
     if (filteredKeys.length === 0) {
