@@ -1,4 +1,4 @@
-FROM oven/bun:1.2 AS builder
+FROM oven/bun:1.2-debian AS builder
 WORKDIR /app
 
 COPY package.json bun.lock ./
@@ -25,4 +25,4 @@ RUN echo "net.core.somaxconn=65535" >> /etc/sysctl.conf && \
 
 EXPOSE 3000
 
-CMD ["bun", "run", "start"]
+CMD ["bun", "run", "start", "-H", "0.0.0.0"]
