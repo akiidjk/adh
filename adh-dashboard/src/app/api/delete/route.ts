@@ -1,45 +1,30 @@
 "use server";
 
-import { createClient } from 'redis';
-import { getRedisUrl } from '@/config';
-import { NextResponse } from 'next/server';
-
+import { getClient } from '@/lib/redis';
 
 export async function DELETE(request: Request) {
-  const client = createClient({ url: await getRedisUrl() });
+  const client = await getClient();
+  const url = new URL(request.url);
+  const id = url.searchParams.get("id");
 
-  try {
-    await client.connect();
-    const { id } = await request.json();
-
-    if (!id) {
-      return NextResponse.json(
-        { error: "ID missing in the request body" },
-        { status: 400 }
-      );
-    }
-
-    const deletedCount = await client.del(id);
-
-    if (deletedCount === 1) {
-      return NextResponse.json(
-        { success: true, message: `Element with ID ${id} removed` },
-        { status: 200 }
-      );
-    } else {
-      return NextResponse.json(
-        { success: false, error: `Element with ID ${id} not found` },
-        { status: 404 }
-      );
-    }
-
-  } catch (error) {
-    console.error("Error during deletion:", error);
-    return NextResponse.json(
-      { error: "Error during deletion" },
-      { status: 500 }
+  if (!id) {
+    return new Response(
+      JSON.stringify({ error: "ID missing in the request URL" }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
     );
-  } finally {
-    await client.disconnect();
+  }
+
+  const deletedCount = await client.del(id);
+
+  if (deletedCount === 1) {
+    return new Response(
+      JSON.stringify({ success: true, message: `Element with ID ${id} removed` }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
+  } else {
+    return new Response(
+      JSON.stringify({ success: false, error: `Element with ID ${id} not found` }),
+      { status: 404, headers: { "Content-Type": "application/json" } }
+    );
   }
 }
