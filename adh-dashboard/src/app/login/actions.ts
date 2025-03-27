@@ -3,21 +3,19 @@
 import { z } from "zod";
 import { createSession, deleteSession } from "@/lib/session";
 import { redirect } from "next/navigation";
-import { getUserId, getUserEmail, getUserPassword } from "@/config";
+import { getUserId, getUserName, getUserPassword } from "@/config";
 
 
 const user = {
   id: await getUserId(),
-  email: await getUserEmail(),
+  username: await getUserName(),
   password: await getUserPassword()
 };
 
 
 const loginSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }).trim(),
-  password: z
-    .string()
-    .trim(),
+  username: z.string().trim(),
+  password: z.string().trim(),
 });
 
 export async function login(_prevState: unknown, formData: FormData) {
@@ -29,12 +27,12 @@ export async function login(_prevState: unknown, formData: FormData) {
     };
   }
 
-  const { email, password } = result.data;
+  const { username: username, password } = result.data;
 
-  if (email !== user.email || password !== user.password) {
+  if (username !== user.username || password !== user.password) {
     return {
       errors: {
-        email: ["Invalid email or password"],
+        username: ["Invalid username or password"],
       },
     };
   }

@@ -24,23 +24,23 @@ export function LoginForm({
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Enter your username below to login to your account
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form action={loginAction}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                {state?.errors?.email &&
-                  <p className="text-red-500">{state.errors.email}</p>
+                <Label htmlFor="username">Username</Label>
+                {state?.errors?.username &&
+                  <p className="text-red-500">{state.errors.username}</p>
                 }
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
+                  id="username"
+                  type="text"
+                  placeholder="akiidjk"
                   required
-                  name="email"
+                  name="username"
                 />
               </div>
               <div className="grid gap-2">

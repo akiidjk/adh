@@ -8,8 +8,8 @@ export async function getUserId() {
   return process.env.USER_ID || '0';
 }
 
-export async function getUserEmail() {
-  return process.env.USER_EMAIL || 'akiidjk@proton.me';
+export async function getUserName() {
+  return process.env.USER_NAME || 'akiidjk';
 }
 
 export async function getUserPassword() {
