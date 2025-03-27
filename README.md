@@ -18,8 +18,6 @@ The core of this project is a simple webhook server that listens for incoming HT
 
 ### Dashboard
 
-### Dashboard
-
 Below are some screenshots of the dashboard:
 
 | ![Dashboard1](/images/adh-dashboard1.png) | ![Dashboard2](/images/adh-dashboard2.png) |
