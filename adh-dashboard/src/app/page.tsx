@@ -39,10 +39,8 @@ export default function Home() {
       if (isInHistory) updateMessages(prev => prev.filter(msg => msg.key !== key));
       if (isInStream) updateStreamMessages(prev => prev.filter(msg => msg.key !== key));
 
-      const response = await fetch(`/api/delete`, {
+      const response = await fetch(`/api/delete?id=${key}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: key }),
       });
 
       if (!response.ok) throw new Error('Failed to delete request');
