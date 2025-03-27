@@ -1,18 +1,13 @@
 "use server";
 
-import { getRedisUrl } from '@/config';
-import { createClient } from 'redis';
+import { getStreamClient } from '@/lib/redis';
 
 export async function GET(req: Request) {
-  const client = createClient({ url: await getRedisUrl() });
-  await client.connect().catch(() => {
-    return new Response("Redis connection failed", { status: 500 });
-  });
-
+  const streamClient = await getStreamClient();
   const stream = new ReadableStream({
     async start(controller) {
       let lastID = "$";
-      const messageQueue: string[] = []; // Coda per i messaggi
+      const messageQueue: string[] = [];
 
       async function processQueue() {
         while (messageQueue.length > 0 && !req.signal.aborted) {
@@ -24,9 +19,9 @@ export async function GET(req: Request) {
 
       try {
         while (!req.signal.aborted) {
-          const results = await client.xRead(
+          const results = await streamClient.xRead(
             { key: "data_stream", id: lastID },
-            { COUNT: 1, BLOCK: 5000 }
+            { COUNT: 10, BLOCK: 60000 }
           );
 
           if (!results) continue;
@@ -50,7 +45,7 @@ export async function GET(req: Request) {
         console.error("Stream error:", err);
         controller.enqueue(`event: error\ndata: ${JSON.stringify({ error: "Stream failed" })}\n\n`);
       } finally {
-        await client.quit().catch(() => { });
+        await streamClient.quit().catch(() => { });
         controller.close();
       }
     },

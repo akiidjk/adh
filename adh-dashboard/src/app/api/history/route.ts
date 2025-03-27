@@ -1,11 +1,10 @@
 "use server";
 
-import { getRedisUrl } from '@/config';
-import { createClient } from 'redis';
+import { getClient } from '@/lib/redis';
 
 export async function GET() {
-  const client = createClient({ url: await getRedisUrl() });
-  await client.connect();
+
+  const client = await getClient();
 
   try {
     let cursor = 0;
@@ -23,7 +22,6 @@ export async function GET() {
       });
     }
 
-    // Usa pipeline per ridurre i round-trip al DB
     const pipeline = client.multi();
     keys.forEach((key) => pipeline.type(key));
     const types = await pipeline.exec();
@@ -44,8 +42,6 @@ export async function GET() {
     });
   } catch (error) {
     console.error("Redis error:", error);
-    return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
-  } finally {
-    await client.disconnect();
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }
