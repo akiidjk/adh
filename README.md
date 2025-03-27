@@ -16,6 +16,18 @@ The core of this project is a simple webhook server that listens for incoming HT
 - **Exploit Script**: Serve a simple exploit script for XSS attacks (stealed from xss.report).
 - **High customizability**: Customize the server to fit your needs.
 
+### Dashboard
+
+### Dashboard
+
+Below are some screenshots of the dashboard:
+
+| ![Dashboard1](/images/adh-dashboard1.png) | ![Dashboard2](/images/adh-dashboard2.png) |
+|-------------------------------------------|-------------------------------------------|
+| ![Dashboard3](/images/adh-dashboard3.png) | ![Dashboard4](/images/adh-dashboard4.png) |
+
+
+
 ### Installation
 
 To get started with the Adh, follow the steps below:
