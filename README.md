@@ -115,12 +115,13 @@ A simple payload for get an xss is `<script src="http://localhost:8000/_"></scri
 
 ### To-Do
 
-- [x] **Dashboard**: The current project lacks a UI dashboard to visualize requests and data. This will be added in the future (In progess).~~
-- [x] **Authentication**: Implement an authentication mechanism to restrict access to the webhook dashboard.~~
-- [x] Fix http problem with Docker~~
+- [x] **Dashboard**: The current project lacks a UI dashboard to visualize requests and data. This will be added in the future (In progess).
+- [x] **Authentication**: Implement an authentication mechanism to restrict access to the webhook dashboard.
+- [x] Fix http problem with Docker
 - [x] Implement rate limiting to prevent abuse
 - [x] Add logout button
 - [ ] Add search bar for requests
+- [ ] Add clear button
 
 ### Contributing
 
