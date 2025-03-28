@@ -2,6 +2,7 @@
 
 import { useMemo, useCallback, useState } from 'react';
 import ListRequests from '@/components/ui/list-requests';
+import { logout } from './login/actions';
 import { useRequestsHistory } from '@/hooks/useRequestsHistory';
 import { useStreamData } from '@/hooks/useStreamData';
 import { toast } from 'sonner';
@@ -13,6 +14,8 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
+import { Button } from "@/components/ui/button";
+import { LogOut } from 'lucide-react';
 
 export default function Home() {
   const { messages: historyMessages, loading, updateMessages } = useRequestsHistory();
@@ -72,11 +75,11 @@ export default function Home() {
         className="text-2xl font-bold ml-10 sticky top-0 bg-background z-10 py-4 flex justify-between"
       >
         Total requests: {messages.length}
-        <div className="fixed right-5 top-5">
+        <div className="fixed right-5 top-5 flex gap-3">
           <ModeToggle />
+          <Button size={'icon'} variant={'outline'} onClick={logout}><LogOut /></Button>
         </div>
       </motion.h1>
-      {/* <div className="flex m-4"> */}
       <ResizablePanelGroup direction="horizontal">
         <ResizablePanel defaultSize={25} minSize={25}>
           <ListRequests
