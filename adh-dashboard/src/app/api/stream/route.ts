@@ -4,9 +4,13 @@ import { getStreamClient } from '@/lib/redis';
 
 export async function GET(req: Request) {
   const streamClient = await getStreamClient();
+
+  const url = new URL(req.url);
+  const lastID = url.searchParams.get("lastID") || "$";  // Default a "$" se non c'è
+
   const stream = new ReadableStream({
     async start(controller) {
-      let lastID = "$";
+      let currentID = lastID;
       const messageQueue: string[] = [];
 
       async function processQueue() {
@@ -20,15 +24,15 @@ export async function GET(req: Request) {
       try {
         while (!req.signal.aborted) {
           const results = await streamClient.xRead(
-            { key: "data_stream", id: lastID },
-            { COUNT: 10, BLOCK: 60000 }
+            { key: "data_stream", id: currentID },
+            { COUNT: 1, BLOCK: 5000 }
           );
 
           if (!results) continue;
 
           for (const { messages } of results) {
             for (const { id, message } of messages) {
-              lastID = id;
+              currentID = id; // Aggiorna l'ID
               const values = Object.values(message);
 
               if (values.length >= 2) {

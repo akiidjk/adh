@@ -21,7 +21,10 @@ export default function Home() {
   const [selectedKey, setSelectedKey] = useState<number | null>(null);
 
   const messages = useMemo(() => {
-    const combined = [...streamMessages, ...historyMessages];
+    const combined = [
+      ...streamMessages.filter(msg => !historyMessages.some(hm => hm.key === msg.key)),
+      ...historyMessages
+    ];
     return combined.sort((a, b) =>
       new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     );
