@@ -33,16 +33,11 @@ services:
       - ./adh-dashboard/logs:/var/log/dashboard
 
   redis:
-    image: redis:7.4.2-alpine
+    image: redis/redis-stack:latest
     container_name: redis
-    command: >
-      redis-server
-      --maxclients 10000
-      --tcp-keepalive 300
-      --timeout 0
-      --lazyfree-lazy-expire yes
     ports:
       - "6379:6379"
+      - "8001:8001"
     volumes:
       - redis_data:/data
     healthcheck:
