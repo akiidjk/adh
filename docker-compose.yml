@@ -33,7 +33,7 @@ services:
       - ./adh-dashboard/logs:/var/log/dashboard
 
   redis:
-    image: redis/redis-stack:latest
+    image: redis/redis-stack:latest #change to redis/redis-stack-server:latest
     container_name: redis
     ports:
       - "6379:6379"
