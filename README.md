@@ -121,7 +121,7 @@ A simple payload for get an xss is `<script src="http://localhost:8000/_"></scri
 - [x] Implement rate limiting to prevent abuse
 - [x] Add logout button
 - [ ] Add search bar for requests
-- [ ] Add clear button
+- [x] Add clear button
 
 ### Contributing
 
