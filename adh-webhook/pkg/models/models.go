@@ -36,6 +36,7 @@ type Request struct {
 }
 
 type StreamMessage struct {
-	Key   string `redis:"key"`
-	Value string `redis:"value"`
+	Key   string      `redis:"key"`
+	Value interface{} `redis:"value"`
+	Id    string      `redis:"id"`
 }

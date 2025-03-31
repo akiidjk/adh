@@ -6,7 +6,7 @@ export async function GET(req: Request) {
   const streamClient = await getStreamClient();
 
   const url = new URL(req.url);
-  const lastID = url.searchParams.get("lastID") || "$";  // Default a "$" se non c'è
+  const lastID = url.searchParams.get("lastID") || "$";
 
   const stream = new ReadableStream({
     async start(controller) {
@@ -32,7 +32,7 @@ export async function GET(req: Request) {
 
           for (const { messages } of results) {
             for (const { id, message } of messages) {
-              currentID = id; // Aggiorna l'ID
+              currentID = id;
               const values = Object.values(message);
 
               if (values.length >= 2) {

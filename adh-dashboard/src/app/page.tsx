@@ -94,22 +94,32 @@ export default function Home() {
         <div className="fixed right-5 top-5 flex gap-3">
           <TooltipProvider>
             <Tooltip>
-              <TooltipTrigger>
-                <Button size={'icon'} variant={'outline'} onClick={handleDeleteAll}><Trash2 /></Button>
+              <TooltipTrigger asChild>
+                <div>
+                  <Button size={'icon'} variant={'outline'} onClick={handleDeleteAll}>
+                    <Trash2 />
+                  </Button>
+                </div>
               </TooltipTrigger>
               <TooltipContent>
-                <p> Delete all messages </p>
+                <p>Delete all messages</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
+
           <ModeToggle />
+
           <TooltipProvider>
             <Tooltip>
-              <TooltipTrigger>
-                <Button size={'icon'} variant={'outline'} onClick={logout}><LogOut /></Button>
+              <TooltipTrigger asChild>
+                <div>
+                  <Button size={'icon'} variant={'outline'} onClick={logout}>
+                    <LogOut />
+                  </Button>
+                </div>
               </TooltipTrigger>
               <TooltipContent>
-                <p> Logout </p>
+                <p>Logout</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

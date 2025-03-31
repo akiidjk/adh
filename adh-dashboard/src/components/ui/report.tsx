@@ -6,7 +6,6 @@ import { Report } from "@/lib/models";
 import Image from "next/image";
 
 export function ReportDetails({ report }: { report: Report }) {
-  console.log(report)
   return (
     <div className="space-y-4">
       {/* Main Report Header */}

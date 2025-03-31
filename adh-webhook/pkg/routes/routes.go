@@ -75,7 +75,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	redis.AddRequest(strconv.FormatInt(time.Now().UnixMilli(), 10), string(marshaledRequest))
+	redis.AddRequest(strconv.FormatInt(time.Now().UnixMilli(), 10), marshaledRequest)
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, "Eat a cookie bro...")

@@ -42,8 +42,10 @@ interface ListRequestsProps {
 
 export default function ListRequests({ messages, loading, onDelete, onSelect }: ListRequestsProps) {
   const truncateText = (text: string, maxLength: number) => {
+    if (!text) return '';
     return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
   };
+
 
   return (
     <div className="flex flex-col">
@@ -87,10 +89,10 @@ export default function ListRequests({ messages, loading, onDelete, onSelect }: 
                     <Card className="m-3 mr-6">
                       <CardHeader className="flex flex-row justify-between items-start">
                         <div>
-                          <CardTitle>{msg.remoteaddr}</CardTitle>
+                          <CardTitle>{msg.remoteaddr || 'Unknown address'}</CardTitle>
                         </div>
                         <div className="flex gap-2">
-                          <Badge>{msg.protocol}</Badge>
+                          <Badge>{msg.protocol || 'HTTP'}</Badge>
                           <Badge className={
                             msg.method === 'GET' ? 'bg-green-500 hover:bg-green-600 text-white' :
                               msg.method === 'POST' ? 'bg-blue-500 hover:bg-blue-600 text-white' :
@@ -98,13 +100,13 @@ export default function ListRequests({ messages, loading, onDelete, onSelect }: 
                                   msg.method === 'PUT' ? 'bg-yellow-500 hover:bg-yellow-600 text-white' :
                                     'bg-gray-500 hover:bg-gray-600 text-white'
                           }>
-                            {msg.method}
+                            {msg.method || 'UNKNOWN'}
                           </Badge>
                         </div>
                       </CardHeader>
                       <CardContent>
                         <CardDescription className="space-y-2">
-                          <p>Path:{truncateText(msg.path, 50)}</p>
+                          <p>Path: {truncateText(msg.path, 50)}</p>
                           <p>User Agent: {truncateText(msg.useragent, 50)}</p>
                         </CardDescription>
                       </CardContent>
@@ -131,9 +133,8 @@ export default function ListRequests({ messages, loading, onDelete, onSelect }: 
               )}
             </AnimatePresence>
           </motion.div>
-        )
-        }
-      </ScrollArea >
-    </div >
+        )}
+      </ScrollArea>
+    </div>
   );
 }

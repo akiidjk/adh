@@ -11,15 +11,16 @@ export function useRequestsHistory() {
   }, []);
 
   useEffect(() => {
+
     async function getHistory() {
       try {
         const res = await fetch("/api/history");
         if (!res.ok) throw new Error("Failed to fetch history");
         const history = await res.json();
+        const parsedData = history.data.map((entry: Record<string, object>) => {
+          const key = parseInt(Object.keys(entry)[0]);
 
-        const parsedData = history.data.map((entry: Record<string, string>) => {
-          const key = Object.keys(entry)[0];
-          return { key, ...JSON.parse(entry[key]) };
+          return { key, ...entry[key] };
         });
 
         const sortedData = parsedData.sort((a: RequestMessage, b: RequestMessage) =>
@@ -28,7 +29,7 @@ export function useRequestsHistory() {
 
         setMessages(sortedData);
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('Unknown error'));
+        setError(err instanceof Error ? err : new Error("Unknown error"));
         console.error("Error loading history:", err);
       } finally {
         setLoading(false);
