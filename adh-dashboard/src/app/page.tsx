@@ -14,8 +14,9 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { LogOut } from 'lucide-react';
+import { LogOut, Trash2 } from 'lucide-react';
 
 export default function Home() {
   const { messages: historyMessages, loading, updateMessages } = useRequestsHistory();
@@ -36,6 +37,19 @@ export default function Home() {
   const handleSelect = useCallback((key: number) => {
     setSelectedKey(key);
   }, []);
+
+  const handleDeleteAll = useCallback(async () => {
+    try {
+      await fetch('/api/delete-all', {
+        method: 'DELETE',
+      });
+      updateMessages(() => []);
+      updateStreamMessages(() => []);
+      toast.success("All requests deleted successfully");
+    } catch {
+      toast.error("Failed to delete requests");
+    }
+  }, [updateMessages, updateStreamMessages]);
 
   const handleDelete = useCallback(async (key: number) => {
     try {
@@ -74,10 +88,31 @@ export default function Home() {
         animate={{ opacity: 1 }}
         className="text-2xl font-bold ml-10 sticky top-0 bg-background z-10 py-4 flex justify-between"
       >
-        Total requests: {messages.length}
+        <div className="flex gap-3">
+          Total requests: {messages.length}
+        </div>
         <div className="fixed right-5 top-5 flex gap-3">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Button size={'icon'} variant={'outline'} onClick={handleDeleteAll}><Trash2 /></Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p> Delete all messages </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <ModeToggle />
-          <Button size={'icon'} variant={'outline'} onClick={logout}><LogOut /></Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Button size={'icon'} variant={'outline'} onClick={logout}><LogOut /></Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p> Logout </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </motion.h1>
       <ResizablePanelGroup direction="horizontal">
