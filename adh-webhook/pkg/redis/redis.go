@@ -57,38 +57,19 @@ func createRequestIndex(ctx context.Context) error {
 		"ON", "JSON",
 		"SCHEMA",
 		// Base fields
-		"$.remoteaddr", "AS", "ip", "TAG",
-		"$.useragent", "AS", "useragent", "TEXT", "NOSTEM",
-		"$.method", "AS", "method", "TAG",
-		"$.path", "AS", "path", "TEXT",
-		"$.protocol", "AS", "protocol", "TAG",
-		"$.contentlength", "AS", "content_length", "NUMERIC",
-		"$.timestamp", "AS", "timestamp", "NUMERIC", "SORTABLE",
+		"$remoteaddr", "TEXT",
+		"$useragent", "AS", "useragent", "TEXT",
+		"$method", "AS", "method", "TEXT",
+		"$path", "AS", "path", "TEXT",
+		"$protocol", "AS", "protocol", "TEXT",
+		"$contentlength", "AS", "content_length", "NUMERIC",
+		"$timestamp", "AS", "timestamp", "NUMERIC", "SORTABLE",
 
 		// Advanced header management
-		"$.headers", "AS", "headers_raw", "TEXT", "NOSTEM",
-		"$.cookies", "AS", "cookies_raw", "TEXT", "NOSTEM",
-		"$.cookies_string", "AS", "all_cookies", "TEXT", "NOSTEM",
+		"$headers", "AS", "headers_raw", "TEXT",
+		"$cookies", "AS", "cookies_raw", "TEXT",
 
-		// Per campi specifici di headers che ti interessano
-		"$.headers['User-Agent']", "AS", "header_user_agent", "TEXT",
-		"$.headers['Content-Type']", "AS", "header_content_type", "TAG",
-
-		// Form data
-		"$.form_string", "AS", "form_data", "TEXT", "NOSTEM",
-		"$.postform_string", "AS", "postform_data", "TEXT", "NOSTEM",
-
-		// Report fields
-		"$.report.uri", "AS", "report_uri", "TEXT",
-		"$.report.referrer", "AS", "report_referrer", "TEXT",
-		"$.report.user_agent", "AS", "report_user_agent", "TEXT",
-		"$.report.lang", "AS", "report_lang", "TAG",
-		"$.report.gpu", "AS", "report_gpu", "TAG",
-
-		"$.report.localstorage_string", "AS", "localstorage", "TEXT", "NOSTEM",
-		"$.report.sessionstorage_string", "AS", "sessionstorage", "TEXT", "NOSTEM",
-
-		"$.body", "AS", "body_text", "TEXT", "NOINDEX",
+		"$body", "AS", "body_text", "TEXT", "NOINDEX",
 	).Result()
 
 	if err != nil && !strings.Contains(err.Error(), "Index already exists") {
