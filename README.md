@@ -15,6 +15,7 @@ The core of this project is a simple webhook server that listens for incoming HT
 - **Redis Integration**: Store incoming request data in Redis, making it easy to scale or manage.
 - **Exploit Script**: Serve a simple exploit script for XSS attacks (stealed from xss.report).
 - **High customizability**: Customize the server to fit your needs.
+- **Search Bar**: Add a search bar for requests with ***RedisSearch syntax***.
 
 ### Dashboard
 
@@ -23,7 +24,6 @@ Below are some screenshots of the dashboard:
 | ![Dashboard1](/images/adh-dashboard1.png) | ![Dashboard2](/images/adh-dashboard2.png) |
 |-------------------------------------------|-------------------------------------------|
 | ![Dashboard3](/images/adh-dashboard3.png) | ![Dashboard4](/images/adh-dashboard4.png) |
-
 
 
 ### Installation
@@ -120,7 +120,7 @@ A simple payload for get an xss is `<script src="http://localhost:8000/_"></scri
 - [x] Fix http problem with Docker
 - [x] Implement rate limiting to prevent abuse
 - [x] Add logout button
-- [ ] Add search bar for requests
+- [x] Add search bar for requests
 - [x] Add clear button
 
 ### Contributing
