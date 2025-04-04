@@ -57,8 +57,8 @@ func createRequestIndex(ctx context.Context) error {
 		"ON", "JSON",
 		"SCHEMA",
 
-		"$address", "TEXT", "SEPARATOR", ".",
-		"$port", "TEXT",
+		"$address", "AS", "address", "TEXT",
+		"$port", "AS", "port", "TEXT",
 		"$useragent", "AS", "useragent", "TEXT",
 		"$method", "AS", "method", "TEXT",
 		"$path", "AS", "path", "TEXT",
