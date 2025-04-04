@@ -89,6 +89,10 @@ export default function Home() {
     : null;
 
   const handleSearch = useCallback(async () => {
+    if (!query) {
+      setSearchResults([]);
+      return;
+    };
     const response = await fetch(`/api/search?q=${query}`);
     const data = await response.json();
     setSearchResults(data.results);
