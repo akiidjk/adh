@@ -36,7 +36,7 @@ export function PrettyRequest({ data: msg }: { data: RequestMessage }) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <h3 className="font-medium mb-1">Client</h3>
-              <p className="text-sm">{msg.remoteaddr}</p>
+              <p className="text-sm">{msg.address}:{msg.port}</p>
             </div>
             <div>
               <h3 className="font-medium mb-1">User Agent</h3>

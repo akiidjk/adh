@@ -44,7 +44,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	logger.Debug("Body (trimmed): %.1000s", bodyString)
 
 	request := models.Request{
-		RemoteAddr:    r.RemoteAddr,
+		Address:       strings.Split(r.RemoteAddr, ":")[0],
+		Port:          strings.Split(r.RemoteAddr, ":")[1],
 		UserAgent:     r.UserAgent(),
 		Method:        r.Method,
 		Path:          r.URL.Path,

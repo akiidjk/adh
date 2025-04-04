@@ -20,7 +20,8 @@ type Report struct {
 }
 
 type Request struct {
-	RemoteAddr    string              `json:"remoteaddr"`
+	Address       string              `json:"address"`
+	Port          string              `json:"port"`
 	UserAgent     string              `json:"useragent"`
 	Method        string              `json:"method"`
 	Path          string              `json:"path"`

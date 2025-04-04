@@ -89,7 +89,7 @@ export default function ListRequests({ messages, loading, onDelete, onSelect }: 
                     <Card className="m-3 mr-6">
                       <CardHeader className="flex flex-row justify-between items-start">
                         <div>
-                          <CardTitle>{msg.remoteaddr || 'Unknown address'}</CardTitle>
+                          <CardTitle>{msg.address || 'Unknown address'}:{msg.port || 'Unknown port'}</CardTitle>
                         </div>
                         <div className="flex gap-2">
                           <Badge>{msg.protocol || 'HTTP'}</Badge>

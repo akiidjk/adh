@@ -56,18 +56,16 @@ func createRequestIndex(ctx context.Context) error {
 		"FT.CREATE", "idx:complete_requests",
 		"ON", "JSON",
 		"SCHEMA",
-		// Base fields
-		"$remoteaddr", "TEXT",
+
+		"$address", "TEXT", "SEPARATOR", ".",
+		"$port", "TEXT",
 		"$useragent", "AS", "useragent", "TEXT",
 		"$method", "AS", "method", "TEXT",
 		"$path", "AS", "path", "TEXT",
 		"$protocol", "AS", "protocol", "TEXT",
-		"$contentlength", "AS", "content_length", "NUMERIC",
-		"$timestamp", "AS", "timestamp", "NUMERIC", "SORTABLE",
 
-		// Advanced header management
-		"$headers", "AS", "headers_raw", "TEXT",
-		"$cookies", "AS", "cookies_raw", "TEXT",
+		"$contentlength", "AS", "content_length", "NUMERIC",
+		"$timestamp", "AS", "timestamp", "TEXT",
 
 		"$body", "AS", "body_text", "TEXT", "NOINDEX",
 	).Result()

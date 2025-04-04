@@ -16,13 +16,16 @@ import {
 } from "@/components/ui/resizable"
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { LogOut, Trash2 } from 'lucide-react';
+import { LogOut, Search, Trash2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { RequestMessage } from '@/lib/models';
 
 export default function Home() {
   const { messages: historyMessages, loading, updateMessages } = useRequestsHistory();
   const { messages: streamMessages, updateMessages: updateStreamMessages } = useStreamData();
-
+  const [query, setQuery] = useState('');
   const [selectedKey, setSelectedKey] = useState<number | null>(null);
+  const [searchResults, setSearchResults] = useState<RequestMessage[]>([]);
 
   const messages = useMemo(() => {
     const combined = [
@@ -55,9 +58,11 @@ export default function Home() {
     try {
       const isInHistory = historyMessages.some(msg => msg.key === key);
       const isInStream = streamMessages.some(msg => msg.key === key);
+      const isInSearchResult = searchResults.some(msg => msg.key === key);
 
       if (isInHistory) updateMessages(prev => prev.filter(msg => msg.key !== key));
       if (isInStream) updateStreamMessages(prev => prev.filter(msg => msg.key !== key));
+      if (isInSearchResult) setSearchResults(prev => prev.filter(msg => msg.key !== key));
 
       const response = await fetch(`/api/delete?id=${key}`, {
         method: 'DELETE',
@@ -75,11 +80,20 @@ export default function Home() {
       updateStreamMessages(() => streamMessages);
       toast.error(error instanceof Error ? error.message : 'Deletion failed');
     }
-  }, [historyMessages, streamMessages, updateMessages, updateStreamMessages, selectedKey]);
+  }, [historyMessages, streamMessages, updateMessages, updateStreamMessages, selectedKey, searchResults]);
+
+  const displayMessages = searchResults.length > 0 ? searchResults : messages;
 
   const selectedMessage = selectedKey !== null
-    ? messages.find(msg => msg.key === selectedKey)
+    ? displayMessages.find(msg => msg.key === selectedKey)
     : null;
+
+  const handleSearch = useCallback(async () => {
+    const response = await fetch(`/api/search?q=${query}`);
+    const data = await response.json();
+    setSearchResults(data.results);
+  }, [query]);
+
 
   return (
     <>
@@ -89,9 +103,13 @@ export default function Home() {
         className="text-2xl font-bold ml-10 sticky top-0 bg-background z-10 py-4 flex justify-between"
       >
         <div className="flex gap-3">
-          Total requests: {messages.length}
+          Total requests: {displayMessages.length}
         </div>
         <div className="fixed right-5 top-5 flex gap-3">
+          <div className='flex gap-2'>
+            <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search messages" className="w-48" />
+            <Button onClick={handleSearch}><Search /></Button>
+          </div>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -128,7 +146,7 @@ export default function Home() {
       <ResizablePanelGroup direction="horizontal">
         <ResizablePanel defaultSize={25} minSize={25}>
           <ListRequests
-            messages={messages}
+            messages={displayMessages}
             loading={loading}
             onDelete={handleDelete}
             onSelect={handleSelect}

@@ -48,9 +48,6 @@ export async function GET(req: Request) {
       } catch (err) {
         console.error("Stream error:", err);
         controller.enqueue(`event: error\ndata: ${JSON.stringify({ error: "Stream failed" })}\n\n`);
-      } finally {
-        await streamClient.quit().catch(() => { });
-        controller.close();
       }
     },
   });

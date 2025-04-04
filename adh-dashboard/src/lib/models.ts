@@ -31,7 +31,8 @@ export interface HttpCookie {
 
 export interface RequestMessage {
   key: number;
-  remoteaddr: string;
+  address: string;
+  port: string;
   useragent: string;
   method: string;
   path: string;
