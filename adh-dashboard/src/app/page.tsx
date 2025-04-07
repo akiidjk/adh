@@ -110,6 +110,7 @@ export default function Home() {
     const data = await response.json();
     if (data.success === false) {
       setSearchResults([]);
+      console.error('Probably error syntax check RedisSearch Syntax');
       return;
     }
     if (data.total === 0) {
