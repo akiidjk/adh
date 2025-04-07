@@ -19,25 +19,17 @@ import { Button } from "@/components/ui/button";
 import { LogOut, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { RequestMessage } from '@/lib/models';
+import { useDebounce } from '@/hooks/useDebounce';
+import { requestService } from '@/services/requestService';
 
 export default function Home() {
   const { messages: historyMessages, loading, updateMessages } = useRequestsHistory();
   const { messages: streamMessages, updateMessages: updateStreamMessages } = useStreamData();
   const [query, setQuery] = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const debouncedQuery = useDebounce(query, 500);
   const [selectedKey, setSelectedKey] = useState<number | null>(null);
   const [searchResults, setSearchResults] = useState<RequestMessage[]>([]);
 
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedQuery(query);
-    }, 500);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [query]);
 
   const messages = useMemo(() => {
     const combined = [
@@ -55,9 +47,7 @@ export default function Home() {
 
   const handleDeleteAll = useCallback(async () => {
     try {
-      await fetch('/api/delete-all', {
-        method: 'DELETE',
-      });
+      await requestService.deleteAllRequests();
       updateMessages(() => []);
       updateStreamMessages(() => []);
       toast.success("All requests deleted successfully");
@@ -76,11 +66,7 @@ export default function Home() {
       if (isInStream) updateStreamMessages(prev => prev.filter(msg => msg.key !== key));
       if (isInSearchResult) setSearchResults(prev => prev.filter(msg => msg.key !== key));
 
-      const response = await fetch(`/api/delete?id=${key}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) throw new Error('Failed to delete request');
+      await requestService.deleteRequest(key);
 
       toast.success("Request deleted successfully");
 
@@ -101,26 +87,28 @@ export default function Home() {
     : null;
 
   const handleSearch = useCallback(async () => {
-    if (!debouncedQuery) {
+    if (!debouncedQuery.trim()) {
       setSearchResults([]);
-      return;
-    };
-
-    const response = await fetch(`/api/search?q=${encodeURIComponent(debouncedQuery)}`);
-    const data = await response.json();
-    if (data.success === false) {
-      setSearchResults([]);
-      console.error('Probably error syntax check RedisSearch Syntax');
       return;
     }
-    if (data.total === 0) {
+
+    const results = await requestService.searchRequests(debouncedQuery);
+
+    if (results.success === false) {
+      setSearchResults([]);
+      console.error('Invalid search syntax');
+      return;
+    }
+
+    if (results.total === 0) {
       setSearchResults([]);
       toast.warning('No results found');
       return;
     }
-    setSearchResults(data.results);
-  }, [debouncedQuery]);
 
+    setSearchResults(results.results);
+
+  }, [debouncedQuery]);
 
   useEffect(() => {
     if (debouncedQuery.trim() === "") {
