@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useCallback, useState } from 'react';
+import { useMemo, useCallback, useState, useEffect } from 'react';
 import ListRequests from '@/components/ui/list-requests';
 import { logout } from './login/actions';
 import { useRequestsHistory } from '@/hooks/useRequestsHistory';
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/resizable"
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { LogOut, Search, Trash2 } from 'lucide-react';
+import { LogOut, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { RequestMessage } from '@/lib/models';
 
@@ -24,8 +24,20 @@ export default function Home() {
   const { messages: historyMessages, loading, updateMessages } = useRequestsHistory();
   const { messages: streamMessages, updateMessages: updateStreamMessages } = useStreamData();
   const [query, setQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedKey, setSelectedKey] = useState<number | null>(null);
   const [searchResults, setSearchResults] = useState<RequestMessage[]>([]);
+
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [query]);
 
   const messages = useMemo(() => {
     const combined = [
@@ -89,14 +101,33 @@ export default function Home() {
     : null;
 
   const handleSearch = useCallback(async () => {
-    if (!query) {
+    if (!debouncedQuery) {
       setSearchResults([]);
       return;
     };
-    const response = await fetch(`/api/search?q=${query}`);
+
+    const response = await fetch(`/api/search?q=${encodeURIComponent(debouncedQuery)}`);
     const data = await response.json();
+    if (data.success === false) {
+      setSearchResults([]);
+      return;
+    }
+    if (data.total === 0) {
+      setSearchResults([]);
+      toast.warning('No results found');
+      return;
+    }
     setSearchResults(data.results);
-  }, [query]);
+  }, [debouncedQuery]);
+
+
+  useEffect(() => {
+    if (debouncedQuery.trim() === "") {
+      setSearchResults([]);
+      return;
+    }
+    handleSearch();
+  }, [debouncedQuery, handleSearch]);
 
 
   return (
@@ -112,7 +143,6 @@ export default function Home() {
         <div className="fixed right-5 top-5 flex gap-3">
           <div className='flex gap-2'>
             <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search messages" className="w-48" />
-            <Button onClick={handleSearch}><Search /></Button>
           </div>
           <TooltipProvider>
             <Tooltip>
