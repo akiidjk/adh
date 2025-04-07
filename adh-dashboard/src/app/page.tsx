@@ -171,7 +171,6 @@ export default function Home() {
           )}
         </ResizablePanel>
       </ResizablePanelGroup>
-      {/* </div> */}
     </>
   );
 }
