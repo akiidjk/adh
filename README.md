@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="images/logo.png" alt="Adh Logo" />
+  <img src="images/logo-light.png" alt="Adh Logo" />
 </p>
 
 This project is nothing innovative or groundbreaking.
