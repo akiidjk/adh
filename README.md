@@ -1,4 +1,6 @@
-# Adh
+<center>
+<img src="images/logo.png" alt="Adh Logo">
+</center>
 
 This project is nothing innovative or groundbreaking.
 I just wanted to create my own webhook to deploy on a VPS, avoiding dependencies on tools like webhook.site, localtunnel, ngrok, or other similar services. It is fully customizable, and you can use it for various purposes like logging, request handling, or data collection.
@@ -7,7 +9,7 @@ I just wanted to create my own webhook to deploy on a VPS, avoiding dependencies
 
 The core of this project is a simple webhook server that listens for incoming HTTP requests, logs the relevant information, and stores request data in Redis. It is built with Go for the backend and uses Redis for storage. The project aims to be lightweight, flexible, and simple to set up, but with room for expansion (such as adding a dashboard).
 
-![img](/images/adh-schema.png)
+![img](images/adh-schema.png)
 
 ### Features
 
@@ -21,9 +23,9 @@ The core of this project is a simple webhook server that listens for incoming HT
 
 Below are some screenshots of the dashboard:
 
-| ![Dashboard1](/images/adh-dashboard1.png) | ![Dashboard2](/images/adh-dashboard2.png) |
+| ![Dashboard1](images/adh-dashboard1.png) | ![Dashboard2](images/adh-dashboard2.png) |
 |-------------------------------------------|-------------------------------------------|
-| ![Dashboard3](/images/adh-dashboard3.png) | ![Dashboard4](/images/adh-dashboard4.png) |
+| ![Dashboard3](images/adh-dashboard3.png) | ![Dashboard4](images/adh-dashboard4.png) |
 
 
 ### Installation
