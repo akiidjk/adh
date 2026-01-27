@@ -1,17 +1,14 @@
-
-
 # Webhooks
-
-adh-webhook/logs
-adh-webhook/.env
-adh-webhook/bin
+webhook/logs
+webhook/.env
+webhook/bin
 
 # Dashboard
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-adh-dashboard/node_modules
+dashboard/node_modules
 .pnp
 .pnp.*
 .yarn/*
@@ -21,14 +18,14 @@ adh-dashboard/node_modules
 !.yarn/versions
 
 # testing
-adh-dashboard/coverage
+dashboard/coverage
 
 # next.js
-adh-dashboard/.next/
-adh-dashboard/out/
+dashboard/.next/
+dashboard/out/
 
 # production
-adh-dashboard/build
+dashboard/build
 
 # misc
 .DS_Store
@@ -42,6 +39,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -49,5 +47,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-adh-dashboard/bun.lock
