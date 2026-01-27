@@ -51,16 +51,23 @@ cd adh
 1. Modify your environment variables in the `.env` file to suit your configuration based on the provided example.
 
 ```
-PORT=8000
-ADDR=0.0.0.0
+# General configuration
 LOG_LEVEL=info
+
+# Application configuration
+WEBHOOK_PORT=8000
+SECRET_KEY=your_secret_key_here
+
+# Redis configuration
 REDIS_ADDR=redis
 REDIS_PORT=6379
-REDIS_URL=redis://redis:6379
+REDIS_PASSWORD=secure_password
+REDIS_URL=redis://:secure_password@redis:6379/0
+
+# Frontend configuration
 USER_ID=0
 USER_NAME=akiidjk
-USER_PASSWORD=akiidjk
-SECRET_KEY=polpetta
+USER_PASSWORD=super_secure_password
 ```
 
 2. Now you can build and start your containers with:
@@ -83,15 +90,16 @@ The server will now be accepting requests on the specified port (8000 by default
 
 The following environment variables are available for customization:
 
-- **REDIS_ADDR**: Address of the Redis server. Defaults to `localhost` or `redis` if using Docker.
-- **REDIS_PORT**: Port for the Redis server. Defaults to `6379`.
-- **REDIS_PASS**: Redis password (if needed).
 - **LOG_LEVEL**: Log level for the application. Options are `debug`, `info`, `warn`, `error`. Defaults to `info`.
-- **REDIS_URL**: URL of the Redis server. Defaults to `redis://localhost:6379`.
-- **USER_ID**: User ID for the application. Defaults to `admin`.
-- **USER_NAME**: User name for the application. Defaults to `admin`.
-- **USER_PASS**: User password for the application. Defaults to `Admin`.
-- **SECRET_KEY**: Secret key for the application. Defaults to `secret`.
+- **WEBHOOK_PORT**: Port for the webhook server. Defaults to `8000`.
+- **SECRET_KEY**: Secret key for the application. Set this to a secure value.
+- **REDIS_ADDR**: Address of the Redis server. Defaults to `redis` (for Docker) or `localhost`.
+- **REDIS_PORT**: Port for the Redis server. Defaults to `6379`.
+- **REDIS_PASSWORD**: Password for the Redis server. Set this to a secure value.
+- **REDIS_URL**: Full Redis connection URL. Example: `redis://:secure_password@redis:6379/0`
+- **USER_ID**: User ID for the frontend/dashboard. Defaults to `0`.
+- **USER_NAME**: Username for the frontend/dashboard. Defaults to `akiidjk`.
+- **USER_PASSWORD**: Password for the frontend/dashboard. Set this to a secure value.
 
 ### 🔍 Health Check
 
@@ -99,7 +107,7 @@ A background goroutine regularly pings Redis to ensure availability, reporting s
 
 ### 📁 Log Storage
 
-The application saves all logs to a folder on your host machine. The logs are stored in the `./adh-webhook/logs` directory on your host system, ensuring that the logs persist even when the container is restarted or destroyed. This is done via Docker bind mounts, which map the `./adh-webhook/logs` folder on your local machine to `/var/log/webhook` in the container.
+The application saves all logs to a folder on your host machine. The logs are stored in the `./adh-webhook/logs` directory on your host system, ensuring that the logs persist even when the container is restarted or destroyed. This is done via Docker bind mounts, which map the `./adh-webhook/logs` folder on your local machine to `/tmp/webhook` in the container.
 
 ### 🧪  Example Request
 
