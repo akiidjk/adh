@@ -5,21 +5,30 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/akiidjk/adh-webhook/pkg/logger"
-	"github.com/akiidjk/adh-webhook/pkg/middleware"
-	"github.com/akiidjk/adh-webhook/pkg/redis"
-	"github.com/akiidjk/adh-webhook/pkg/routes"
-	"github.com/akiidjk/adh-webhook/pkg/utils"
+	"github.com/akiidjk/adh/pkg/logger"
+	"github.com/akiidjk/adh/pkg/middleware"
+	"github.com/akiidjk/adh/pkg/redis"
+	"github.com/akiidjk/adh/pkg/routes"
+	"github.com/akiidjk/adh/pkg/utils"
+	"github.com/joho/godotenv"
 )
 
 var (
-	PORT      = utils.GetEnv("PORT", "8000")
-	ADDR      = utils.GetEnv("ADDR", "localhost")
-	LOG_LEVEL = utils.GetEnv("LOG_LEVEL", "info")
+	PORT      = "8000"
+	LOG_LEVEL = "info"
 )
 
+const ADDR = "0.0.0.0"
+
 func init() {
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Printf("Error loading .env file: %v\n", err)
+	}
+	PORT = utils.GetEnv("PORT", "8000")
+	LOG_LEVEL = utils.GetEnv("LOG_LEVEL", "info")
 	logger.SetLevel(logger.ParseLevel(LOG_LEVEL))
+	redis.InitRedis()
 }
 
 func main() {
