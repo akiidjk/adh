@@ -19,7 +19,7 @@ services:
     build: ./adh-dashboard
     container_name: dashboard
     ports:
-      - "3000:3000"
+      - "${DASHBOARD_PORT:-3000}:3000"
     environment:
       - REDIS_URL=${REDIS_URL:-redis://redis:6379}
       - USER_ID=${USER_ID:-0}

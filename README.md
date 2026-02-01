@@ -48,26 +48,10 @@ cd adh
 
 #### Set Up Docker Containers
 
-1. Modify your environment variables in the `.env` file to suit your configuration based on the provided example.
+1. Copy the .env.example file to .env and customize the environment variables as needed:
 
-```
-# General configuration
-LOG_LEVEL=info
-
-# Application configuration
-WEBHOOK_PORT=8000
-SECRET_KEY=your_secret_key_here
-
-# Redis configuration
-REDIS_ADDR=redis
-REDIS_PORT=6379
-REDIS_PASSWORD=secure_password
-REDIS_URL=redis://:secure_password@redis:6379/0
-
-# Frontend configuration
-USER_ID=0
-USER_NAME=akiidjk
-USER_PASSWORD=super_secure_password
+```bash
+cp .env.example .env
 ```
 
 2. Now you can build and start your containers with:
@@ -86,12 +70,23 @@ http://localhost:8000
 
 The server will now be accepting requests on the specified port (8000 by default).
 
+#### Access the Dashboard
+
+Once the containers are running, you can access your dashboard on:
+
+```
+http://localhost:3000
+```
+
+The dashboard will allow you to view all requests.
+
 ### 🛠 Configuration
 
 The following environment variables are available for customization:
 
 - **LOG_LEVEL**: Log level for the application. Options are `debug`, `info`, `warn`, `error`. Defaults to `info`.
 - **WEBHOOK_PORT**: Port for the webhook server. Defaults to `8000`.
+- **DASHBOARD_PORT**: Port for the dashboard server. Defaults to `3000`.
 - **SECRET_KEY**: Secret key for the application. Set this to a secure value.
 - **REDIS_ADDR**: Address of the Redis server. Defaults to `redis` (for Docker) or `localhost`.
 - **REDIS_PORT**: Port for the Redis server. Defaults to `6379`.
