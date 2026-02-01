@@ -1,5 +1,5 @@
 # Webhooks
-webhook/logs
+adh-webhook/logs
 webhook/.env
 webhook/bin
 
@@ -9,6 +9,7 @@ webhook/bin
 
 # dependencies
 dashboard/node_modules
+adh-dashboard/logs
 .pnp
 .pnp.*
 .yarn/*

@@ -40,7 +40,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	logger.Debug("Headers: %v", r.Header)
 	logger.Debug("Cookies: %v", r.Cookies())
 
-	bodyBytes, err := io.ReadAll(io.LimitReader(r.Body, 10<<20)) // Limite a 10MB
+	bodyBytes, err := io.ReadAll(io.LimitReader(r.Body, 10<<20)) // 10mb limits
 	if err != nil {
 		logger.Error("Error reading request body: %v", err)
 		http.Error(w, "Error reading body", http.StatusInternalServerError)

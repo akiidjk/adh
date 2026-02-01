@@ -1,6 +1,6 @@
 services:
   webhook:
-    build: ./adh-webhook
+    build: ./webhook
     container_name: webhook
     ports:
       - "${WEBHOOK_PORT:-8000}:8000"
@@ -19,7 +19,7 @@ services:
       - full
 
   dashboard:
-    build: ./adh-dashboard
+    build: ./dashboard
     container_name: dashboard
     ports:
       - "${DASHBOARD_PORT:-3000}:3000"
