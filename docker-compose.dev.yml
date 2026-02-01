@@ -5,7 +5,6 @@ services:
     ports:
       - "${WEBHOOK_PORT:-8000}:8000"
     environment:
-      - PORT=${WEBHOOK_PORT:-8000}
       - LOG_LEVEL=${LOG_LEVEL}
       - REDIS_ADDR=${REDIS_ADDR:-redis}
       - REDIS_PORT=${REDIS_PORT:-6379}

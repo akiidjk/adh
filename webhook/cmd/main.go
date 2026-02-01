@@ -25,7 +25,6 @@ func init() {
 	if err != nil {
 		fmt.Printf("Error loading .env file: %v\n", err)
 	}
-	PORT = utils.GetEnv("PORT", "8000")
 	LOG_LEVEL = utils.GetEnv("LOG_LEVEL", "info")
 	logger.SetLevel(logger.ParseLevel(LOG_LEVEL))
 	redis.InitRedis()
