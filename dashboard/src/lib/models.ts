@@ -1,6 +1,6 @@
 import * as zod from 'zod';
 
-export const endpointPattern = /^[A-Za-z0-9_\-\/]+$/;
+export const endpointPattern = /^[A-Za-z0-9.\_\-\/]+$/;
 
 export interface Report {
   uri: string;
