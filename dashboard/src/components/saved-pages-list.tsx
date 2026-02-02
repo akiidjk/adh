@@ -13,6 +13,7 @@ import {
   AlertCircle,
   Loader2,
   FolderOpen,
+  Edit,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -46,9 +47,10 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 interface SavedPagesListProps {
   refreshTrigger?: number;
+  onEdit?: (endpoint: string, code: string) => void;
 }
 
-export function SavedPagesList({ refreshTrigger }: SavedPagesListProps) {
+export function SavedPagesList({ refreshTrigger, onEdit }: SavedPagesListProps) {
   const [isOpen, setIsOpen] = React.useState(true);
   const [deletingEndpoint, setDeletingEndpoint] = React.useState<string | null>(null);
   const [previewPage, setPreviewPage] = React.useState<{
@@ -227,6 +229,25 @@ export function SavedPagesList({ refreshTrigger }: SavedPagesListProps) {
                           <TooltipContent>View</TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
+
+                      {onEdit && (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-8"
+                                onClick={() => onEdit(endpoint, code)}
+                                aria-label={`Edit /${endpoint}`}
+                              >
+                                <Edit className="size-4" aria-hidden="true" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Edit</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
 
                       <AlertDialog>
                         <TooltipProvider>

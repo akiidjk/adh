@@ -67,6 +67,8 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
   const [isDragOver, setIsDragOver] = React.useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
   const [refreshTrigger, setRefreshTrigger] = React.useState(0);
+  const [isEditMode, setIsEditMode] = React.useState(false);
+  const [originalEndpoint, setOriginalEndpoint] = React.useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const form = useForm<PageData>({
@@ -162,7 +164,8 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
     form.reset();
     setUploadedFile(null);
     setInputMethod("code");
-    toast.info("Form reset");
+    setIsEditMode(false);
+    setOriginalEndpoint(null);
   };
 
   const handleSubmit = async () => {
@@ -179,7 +182,7 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
 
     try {
       const response = await fetch("/api/create", {
-        method: "POST",
+        method: isEditMode ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -188,10 +191,10 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || "Error creating page");
+        throw new Error(error.message || `Error ${isEditMode ? "updating" : "creating"} page`);
       }
 
-      toast.success("Page created successfully!", {
+      toast.success(`Page ${isEditMode ? "updated" : "created"} successfully!`, {
         description: `Endpoint: ${values.endpoint}`,
         icon: <CheckCircle2 className="size-4 text-accent" />,
       });
@@ -200,7 +203,7 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
       setRefreshTrigger((prev) => prev + 1);
       onSuccess?.();
     } catch (error) {
-      toast.error("Error creating page", {
+      toast.error(`Error ${isEditMode ? "updating" : "creating"} page`, {
         description:
           error instanceof Error ? error.message : "Please try again later",
         icon: <AlertCircle className="size-4" />,
@@ -217,9 +220,19 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
 
   const onSubmitClick = async () => {
     const isValid = await form.trigger();
-    if (isValid && hasContent) {
+    if (isValid) {
       setShowConfirmDialog(true);
     }
+  };
+
+  const handleEdit = (endpoint: string, code: string) => {
+    setIsEditMode(true);
+    setOriginalEndpoint(endpoint);
+    form.setValue("endpoint", endpoint, { shouldValidate: true });
+    form.setValue("body", code, { shouldValidate: true });
+    setInputMethod("code");
+    setUploadedFile(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const hasErrors = Object.keys(form.formState.errors).length > 0;
@@ -261,6 +274,28 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
       <div className="p-8 space-y-8">
         <Form {...form}>
           <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+            {/* Edit Mode Indicator */}
+            {isEditMode && (
+              <Alert className="border-blue-500 bg-blue-500/10">
+                <Info className="size-4 text-blue-500" aria-hidden="true" />
+                <AlertDescription className="flex items-center justify-between">
+                  <span>
+                    Editing page: <code className="font-mono text-foreground bg-secondary px-1.5 py-0.5 rounded">/{originalEndpoint}</code>
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleClear}
+                    className="gap-2 h-auto py-1"
+                  >
+                    <X className="size-4" aria-hidden="true" />
+                    Cancel Edit
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            )}
+
             {/* Endpoint Field */}
             <FormField
               control={form.control}
@@ -615,12 +650,12 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
                               className="size-4 animate-spin"
                               aria-hidden="true"
                             />
-                            Creating...
+                            {isEditMode ? "Updating..." : "Creating..."}
                           </>
                         ) : (
                           <>
                             <Send className="size-4" aria-hidden="true" />
-                            Create Page
+                            {isEditMode ? "Update Page" : "Create Page"}
                           </>
                         )}
                       </Button>
@@ -643,7 +678,7 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
 
         {/* Saved Pages Section */}
         <div className="pt-8 border-t border-border">
-          <SavedPagesList refreshTrigger={refreshTrigger} />
+          <SavedPagesList refreshTrigger={refreshTrigger} onEdit={handleEdit} />
         </div>
 
       </div>
@@ -653,11 +688,15 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm page creation</AlertDialogTitle>
+            <AlertDialogTitle>
+              {isEditMode ? "Confirm page update" : "Confirm page creation"}
+            </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-3">
                 <p>
-                  You're about to create a new page with the following details:
+                  {isEditMode
+                    ? "You're about to update the page with the following details:"
+                    : "You're about to create a new page with the following details:"}
                 </p>
                 <div className="rounded-lg bg-secondary p-3 space-y-2">
                   <div className="flex items-center gap-2">
@@ -687,7 +726,7 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleSubmit}>
-              Confirm and Create
+              {isEditMode ? "Confirm and Update" : "Confirm and Create"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

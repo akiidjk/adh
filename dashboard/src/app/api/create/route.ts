@@ -55,3 +55,30 @@ export async function POST(request: NextRequest) {
 
   return new Response('Page data received', { status: 200 });
 }
+
+
+export async function PUT(request: NextRequest) {
+  const client = await getClient();
+  const json = await request.json();
+  const result = pageSchema.safeParse(json);
+
+  if (!result.success) {
+    const errors = result.error.flatten();
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Validation failed",
+        errors: errors.fieldErrors,
+      },
+      { status: 400 }
+    );
+  }
+  const validatedData: PageData = result.data;
+  validatedData.endpoint = validatedData.endpoint.replace(/^\/+/, ''); // Remove leading slashes
+
+  await client.hDel('page_data', validatedData.endpoint);
+  await client.hSet('page_data', validatedData.endpoint, validatedData.body || '');
+
+
+  return new Response('Page data received', { status: 200 });
+}

@@ -37,6 +37,7 @@ func main() {
 	mux.HandleFunc("/{endpoint}", routes.ServePage)
 
 	wrappedMux := middleware.RateLimitMiddleware(mux)
+	wrappedMux = middleware.LoggerMiddleware(wrappedMux)
 
 	go func() {
 		if err := http.ListenAndServe(fmt.Sprintf("%s:%s", ADDR, PORT), wrappedMux); err != nil {
