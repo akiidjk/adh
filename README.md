@@ -20,6 +20,7 @@ The core of this project is a simple webhook server that listens for incoming HT
 - **XSS Exploit Script**: Serve a simple exploit script for XSS attacks (stealed from xss.report).
 - **High customizability**: Customize the server to fit your needs.
 - **Search Bar Support**: Add a search bar for requests with ***RedisSearch syntax***.
+- **New page creator**: Create dynamic endpoints and custom pages for specific needs.
 
 ### 📊 Dashboard
 
@@ -124,6 +125,10 @@ Example payload:
 
 Customize the domain in the script if running Adh on a different host.
 
+> [!TIP]
+> Now you can also create CUSTOM pages, go to `/creator` to create your own page!
+
+
 ### 📌 To-Do
 
 - [x] **Dashboard**: The current project lacks a UI dashboard to visualize requests and data. This will be added in the future.
@@ -133,6 +138,7 @@ Customize the domain in the script if running Adh on a different host.
 - [x] Add logout button
 - [x] Add search bar for requests
 - [x] Add clear button
+- [x] New creator page for dynamic endpoints
 
 ### 🤝 Contributing
 

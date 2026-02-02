@@ -34,6 +34,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", routes.Handler)
 	mux.HandleFunc("/_", routes.GetExploit)
+	mux.HandleFunc("/{endpoint}", routes.ServePage)
 
 	wrappedMux := middleware.RateLimitMiddleware(mux)
 

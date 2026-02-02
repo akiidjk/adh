@@ -26,11 +26,17 @@ func InitRedis() {
 	logger.Debug("Redis configuration - ADDR: %s, PORT: %s, DB: %d, PASS: %s", ADDR, PORT, DB, PASS)
 	logger.Info("Initializing Redis client")
 	client = redis.NewClient(&redis.Options{
-		Addr:         ADDR + ":" + PORT,
-		Password:     PASS,
-		DB:           DB,
-		PoolSize:     50,
-		MinIdleConns: 5,
+		Addr:            ADDR + ":" + PORT,
+		Password:        PASS,
+		DB:              DB,
+		PoolSize:        50,
+		MinIdleConns:    5,
+		MinRetryBackoff: 10 * time.Millisecond,
+		MaxRetryBackoff: 100 * time.Millisecond,
+		MaxRetries:      5,
+		DialTimeout:     10 * time.Second,
+		ReadTimeout:     5 * time.Second,
+		WriteTimeout:    5 * time.Second,
 	})
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
@@ -111,6 +117,23 @@ func AddRequest(key string, value interface{}) error {
 		return fmt.Errorf("failed to execute redis pipeline: %w", err)
 	}
 	return execErr
+}
+
+func GetPage(endpoint string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	result := client.HGet(ctx, "page_data", endpoint)
+	if result.Err() != nil {
+		return "", result.Err()
+	}
+
+	data, err := result.Result()
+	if err != nil {
+		return "", err
+	}
+
+	return data, nil
 }
 
 func RedisHealthChecker(stop chan bool, status chan bool) {

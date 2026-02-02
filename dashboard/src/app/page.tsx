@@ -1,5 +1,7 @@
 'use client';
 
+import { Header } from '@/components/header';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Details from '@/components/ui/details';
 import { Input } from '@/components/ui/input';
@@ -14,10 +16,9 @@ import { useStreamData } from '@/hooks/useStreamData';
 import { RequestMessage } from '@/lib/models';
 import { requestService } from '@/services/requestService';
 import { motion } from 'framer-motion';
-import { LogOut, Trash2 } from 'lucide-react';
+import { LogOut, Pencil, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
-
 import { logout } from './login/actions';
 
 export default function Home() {
@@ -131,53 +132,32 @@ export default function Home() {
           </motion.div>
         </div>
       )}
-      <motion.h1
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className='text-2xl font-bold ml-10 sticky top-0 bg-background z-10 py-4 flex justify-between'>
-        <div className='flex gap-3'>Total requests: {displayMessages.length}</div>
-        <div className='fixed right-5 top-5 flex gap-3'>
-          <div className='flex gap-2'>
+      <Header
+        title="Main Dashboard"
+        leftContent={<Badge>Total request: {displayMessages.length}</Badge>}
+        showModeToggle={true}
+        onLogout={logout}
+        rightContent={
+          <div className="flex items-center gap-2">
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder='Search messages'
-              className='w-48'
+              placeholder="Search messages"
+              className="w-48"
             />
-          </div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div>
-                  <Button size={'icon'} variant={'outline'} onClick={handleDeleteAll}>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button size="icon" variant="outline" onClick={handleDeleteAll}>
                     <Trash2 />
                   </Button>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Delete all messages</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <ModeToggle />
-
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div>
-                  <Button size={'icon'} variant={'outline'} onClick={logout}>
-                    <LogOut />
-                  </Button>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Logout</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-      </motion.h1>
+                </TooltipTrigger>
+                <TooltipContent>Delete all messages</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        }
+      />
       <ResizablePanelGroup direction='horizontal'>
         <ResizablePanel defaultSize={25} minSize={25}>
           <ListRequests messages={displayMessages} loading={loading} onDelete={handleDelete} onSelect={handleSelect} />

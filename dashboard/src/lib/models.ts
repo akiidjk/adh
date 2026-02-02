@@ -1,3 +1,7 @@
+import * as zod from 'zod';
+
+export const endpointPattern = /^[A-Za-z0-9_\-\/]+$/;
+
 export interface Report {
   uri: string;
   cookies: string;
@@ -47,3 +51,17 @@ export interface RequestMessage {
   timestamp: string;
   uniqueid: string;
 }
+
+export const pageSchema = zod.object({
+  endpoint: zod.string()
+      .trim()
+      .min(1, "L'endpoint è obbligatorio")
+      .min(2, "L'endpoint deve avere almeno 2 caratteri")
+      .max(99, "L'endpoint deve avere meno di 100 caratteri")
+    .refine((val) => endpointPattern.test(val), {
+        message: "L'endpoint può contenere solo lettere, numeri, trattini (-), underscore (_) e slash (/)",
+      }),
+  body: zod.string().optional(),
+});
+
+export type PageData = zod.infer<typeof pageSchema>;
