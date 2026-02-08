@@ -11,6 +11,7 @@ export async function DELETE() {
 
     do {
       const result = await client.scan(cursor, { MATCH: '*', COUNT: 100 });
+      result.keys = result.keys.filter((k: string) => k !== 'page_data');
       cursor = result.cursor;
       keys = keys.concat(result.keys);
     } while (cursor !== '0');

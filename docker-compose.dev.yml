@@ -42,7 +42,6 @@ services:
       - REDIS_ARGS=--requirepass ${REDIS_PASSWORD}
     ports:
       - "${REDIS_PORT:-6379}:6379"
-      - "8001:8001"
     volumes:
       - redis_data:/data
     healthcheck:
@@ -51,6 +50,14 @@ services:
       timeout: 3s
       retries: 5
 
+  redisinsight:
+    image: redis/redisinsight:latest
+    ports:
+      - "5540:5540"
+    volumes:
+      - redis-insight:/data
+
 volumes:
   redis_data:
     driver: local
+  redis-insight:
