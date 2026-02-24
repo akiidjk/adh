@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import {
@@ -16,6 +16,9 @@ import {
   Loader2,
   Copy,
   X,
+  Plus,
+  Hash,
+  Tags,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,7 +53,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CodeEditor } from "@/components/code-editor";
 import { SavedPagesList } from "@/components/saved-pages-list";
-import { pageSchema, type PageData } from "@/lib/models";
+import { pageSchema, type PageData, type StoredPageData } from "@/lib/models";
 import { Header } from "@/components/header";
 import { logout } from "../login/actions";
 
@@ -58,6 +61,42 @@ type InputMethod = "code" | "upload";
 
 interface PageCreatorProps {
   onSuccess?: () => void;
+}
+
+// Common HTTP status codes for quick-select
+const COMMON_STATUS_CODES = [
+  { code: 200, label: "200 OK" },
+  { code: 201, label: "201 Created" },
+  { code: 204, label: "204 No Content" },
+  { code: 301, label: "301 Moved Permanently" },
+  { code: 302, label: "302 Found" },
+  { code: 304, label: "304 Not Modified" },
+  { code: 400, label: "400 Bad Request" },
+  { code: 401, label: "401 Unauthorized" },
+  { code: 403, label: "403 Forbidden" },
+  { code: 404, label: "404 Not Found" },
+  { code: 500, label: "500 Internal Server Error" },
+  { code: 503, label: "503 Service Unavailable" },
+];
+
+function getStatusCodeColor(code: number): string {
+  if (code >= 200 && code < 300) return "text-emerald-500";
+  if (code >= 300 && code < 400) return "text-blue-400";
+  if (code >= 400 && code < 500) return "text-amber-500";
+  if (code >= 500) return "text-destructive";
+  return "text-muted-foreground";
+}
+
+function getStatusCodeBadgeClass(code: number): string {
+  if (code >= 200 && code < 300)
+    return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
+  if (code >= 300 && code < 400)
+    return "bg-blue-400/10 text-blue-400 border-blue-400/20";
+  if (code >= 400 && code < 500)
+    return "bg-amber-500/10 text-amber-500 border-amber-500/20";
+  if (code >= 500)
+    return "bg-destructive/10 text-destructive border-destructive/20";
+  return "bg-secondary text-muted-foreground border-border";
 }
 
 export default function PageCreator({ onSuccess }: PageCreatorProps) {
@@ -76,12 +115,21 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
     defaultValues: {
       endpoint: "",
       body: "",
+      statusCode: 200,
+      headers: [],
     },
     mode: "onChange",
   });
 
+  const { fields: headerFields, append: appendHeader, remove: removeHeader } =
+    useFieldArray({
+      control: form.control,
+      name: "headers",
+    });
+
   const endpoint = form.watch("endpoint");
   const body = form.watch("body");
+  const statusCode = form.watch("statusCode");
 
   const endpointPattern = /^[A-Za-z0-9_\-\/]+$/;
   const isValidEndpoint =
@@ -102,7 +150,9 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
       errors.push("Must be less than 100 characters");
     }
     if (endpoint.length > 1 && !endpointPattern.test(endpoint)) {
-      errors.push("May only contain letters, numbers, dashes (-), underscores (_) and slashes (/)");
+      errors.push(
+        "May only contain letters, numbers, dashes (-), underscores (_) and slashes (/)"
+      );
     }
 
     return errors;
@@ -161,7 +211,7 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
   }, []);
 
   const handleClear = () => {
-    form.reset();
+    form.reset({ endpoint: "", body: "", statusCode: 200, headers: [] });
     setUploadedFile(null);
     setInputMethod("code");
     setIsEditMode(false);
@@ -178,6 +228,8 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
     const payload: PageData = {
       endpoint: values.endpoint,
       body: values.body || undefined,
+      statusCode: values.statusCode,
+      headers: values.headers,
     };
 
     try {
@@ -191,7 +243,9 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || `Error ${isEditMode ? "updating" : "creating"} page`);
+        throw new Error(
+          error.message || `Error ${isEditMode ? "updating" : "creating"} page`
+        );
       }
 
       toast.success(`Page ${isEditMode ? "updated" : "created"} successfully!`, {
@@ -225,11 +279,18 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
     }
   };
 
-  const handleEdit = (endpoint: string, code: string) => {
+  const handleEdit = (ep: string, data: StoredPageData) => {
     setIsEditMode(true);
-    setOriginalEndpoint(endpoint);
-    form.setValue("endpoint", endpoint, { shouldValidate: true });
-    form.setValue("body", code, { shouldValidate: true });
+    setOriginalEndpoint(ep);
+    form.reset({
+      endpoint: ep,
+      body: data.body ?? "",
+      statusCode: data.statusCode ?? 200,
+      headers: Object.entries(data.headers ?? {}).map(([key, value]) => ({
+        key,
+        value,
+      })),
+    });
     setInputMethod("code");
     setUploadedFile(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -237,14 +298,17 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
 
   const hasErrors = Object.keys(form.formState.errors).length > 0;
 
+  const statusCodeNum = Number(statusCode);
+  const isValidStatusCode =
+    Number.isInteger(statusCodeNum) &&
+    statusCodeNum >= 100 &&
+    statusCodeNum <= 599;
+
   return (
     <section className="" aria-labelledby="page-creator-title">
       {/* Header */}
-      <Header
-        title="Page Creator"
-        showModeToggle={true}
-        onLogout={logout}
-      />
+      <Header title="Page Creator" showModeToggle={true} onLogout={logout} />
+
       {/* Error Summary */}
       {hasErrors && (
         <Alert variant="destructive" role="alert" aria-live="polite">
@@ -280,7 +344,10 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
                 <Info className="size-4 text-blue-500" aria-hidden="true" />
                 <AlertDescription className="flex items-center justify-between">
                   <span>
-                    Editing page: <code className="font-mono text-foreground bg-secondary px-1.5 py-0.5 rounded">/{originalEndpoint}</code>
+                    Editing page:{" "}
+                    <code className="font-mono text-foreground bg-secondary px-1.5 py-0.5 rounded">
+                      /{originalEndpoint}
+                    </code>
                   </span>
                   <Button
                     type="button"
@@ -323,9 +390,13 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
                             <li>• Only letters, numbers, -, _ and /</li>
                           </ul>
                           <p className="mt-2 text-xs">
-                            <span className="text-muted-foreground">Examples: </span>
+                            <span className="text-muted-foreground">
+                              Examples:{" "}
+                            </span>
                             <code className="text-accent">/about</code>,{" "}
-                            <code className="text-accent">/dashboard/settings</code>
+                            <code className="text-accent">
+                              /dashboard/settings
+                            </code>
                           </p>
                         </TooltipContent>
                       </Tooltip>
@@ -384,12 +455,23 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
                                   Invalid
                                 </Badge>
                               </TooltipTrigger>
-                              <TooltipContent side="top" className="max-w-xs" role="alert">
-                                <p className="font-medium text-destructive">Validation errors:</p>
+                              <TooltipContent
+                                side="top"
+                                className="max-w-xs"
+                                role="alert"
+                              >
+                                <p className="font-medium text-destructive">
+                                  Validation errors:
+                                </p>
                                 <ul className="mt-1 space-y-0.5 text-xs">
                                   {endpointErrors.map((error, index) => (
-                                    <li key={index} className="flex items-start gap-1.5">
-                                      <span className="text-destructive mt-0.5">•</span>
+                                    <li
+                                      key={index}
+                                      className="flex items-start gap-1.5"
+                                    >
+                                      <span className="text-destructive mt-0.5">
+                                        •
+                                      </span>
                                       <span>{error}</span>
                                     </li>
                                   ))}
@@ -419,7 +501,9 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>
-                              {isValidEndpoint ? "Copy endpoint" : "Invalid endpoint"}
+                              {isValidEndpoint
+                                ? "Copy endpoint"
+                                : "Invalid endpoint"}
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
@@ -435,6 +519,290 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
               )}
             />
 
+            {/* Status Code Field */}
+            <FormField
+              control={form.control}
+              name="statusCode"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center gap-2">
+                    <FormLabel className="text-foreground">
+                      Status Code
+                    </FormLabel>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            type="button"
+                            className="text-muted-foreground hover:text-foreground transition-colors"
+                            aria-label="Status code information"
+                          >
+                            <Info className="size-4" aria-hidden="true" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" className="max-w-xs">
+                          <p className="font-medium">HTTP Status Code</p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            The HTTP status code returned when this endpoint is
+                            requested. Must be between 100 and 599.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+
+                  <div className="space-y-3">
+                    {/* Quick-select chips */}
+                    <div className="flex flex-wrap gap-1.5">
+                      {COMMON_STATUS_CODES.map(({ code, label }) => (
+                        <button
+                          key={code}
+                          type="button"
+                          onClick={() =>
+                            form.setValue("statusCode", code, {
+                              shouldValidate: true,
+                            })
+                          }
+                          className={`inline-flex items-center gap-1 text-xs font-mono px-2 py-1 rounded border transition-all ${statusCodeNum === code
+                            ? getStatusCodeBadgeClass(code) +
+                            " ring-1 ring-offset-1 ring-offset-background " +
+                            (code >= 200 && code < 300
+                              ? "ring-emerald-500"
+                              : code >= 300 && code < 400
+                                ? "ring-blue-400"
+                                : code >= 400 && code < 500
+                                  ? "ring-amber-500"
+                                  : "ring-destructive")
+                            : "bg-secondary/50 text-muted-foreground border-border hover:bg-secondary hover:text-foreground"
+                            }`}
+                          aria-pressed={statusCodeNum === code}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Custom input */}
+                    <div className="relative">
+                      <Hash className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="number"
+                          min={100}
+                          max={599}
+                          placeholder="200"
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value, 10);
+                            field.onChange(isNaN(val) ? 200 : val);
+                          }}
+                          value={field.value ?? 200}
+                          className={`bg-input border-border text-foreground placeholder:text-muted-foreground pl-9 pr-20 font-mono w-48 ${isValidStatusCode
+                            ? getStatusCodeColor(statusCodeNum)
+                            : "text-destructive"
+                            }`}
+                          aria-describedby="status-code-description"
+                        />
+                      </FormControl>
+                      {isValidStatusCode && (
+                        <span
+                          className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium ${getStatusCodeColor(statusCodeNum)}`}
+                        >
+                          {statusCodeNum >= 200 && statusCodeNum < 300
+                            ? "Success"
+                            : statusCodeNum >= 300 && statusCodeNum < 400
+                              ? "Redirect"
+                              : statusCodeNum >= 400 && statusCodeNum < 500
+                                ? "Client err"
+                                : statusCodeNum >= 500
+                                  ? "Server err"
+                                  : "Info"}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <FormDescription id="status-code-description">
+                    HTTP status code returned by this endpoint (100–599)
+                  </FormDescription>
+                  <FormMessage role="alert" />
+                </FormItem>
+              )}
+            />
+
+            {/* Headers Field */}
+            <FormItem>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FormLabel className="text-foreground">
+                    Response Headers
+                  </FormLabel>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          className="text-muted-foreground hover:text-foreground transition-colors"
+                          aria-label="Headers information"
+                        >
+                          <Info className="size-4" aria-hidden="true" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="right" className="max-w-xs">
+                        <p className="font-medium">Custom Response Headers</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Add HTTP headers to include in the response. Common
+                          examples:
+                        </p>
+                        <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
+                          <li>
+                            •{" "}
+                            <code className="text-accent">Content-Type</code>:
+                            text/html
+                          </li>
+                          <li>
+                            •{" "}
+                            <code className="text-accent">
+                              X-Custom-Header
+                            </code>
+                            : value
+                          </li>
+                          <li>
+                            •{" "}
+                            <code className="text-accent">Cache-Control</code>:
+                            no-cache
+                          </li>
+                        </ul>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  {headerFields.length > 0 && (
+                    <Badge variant="secondary" className="text-xs tabular-nums">
+                      <Tags className="size-3 mr-1" aria-hidden="true" />
+                      {headerFields.length}
+                    </Badge>
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => appendHeader({ key: "", value: "" })}
+                  className="gap-1.5 text-xs h-7 border-border text-muted-foreground hover:text-foreground bg-transparent"
+                >
+                  <Plus className="size-3" aria-hidden="true" />
+                  Add Header
+                </Button>
+              </div>
+
+              {headerFields.length === 0 ? (
+                <div
+                  className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-input/50 py-6 text-muted-foreground cursor-pointer hover:bg-secondary/30 transition-colors"
+                  onClick={() => appendHeader({ key: "", value: "" })}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ")
+                      appendHeader({ key: "", value: "" });
+                  }}
+                  aria-label="Add a response header"
+                >
+                  <Tags className="size-6 opacity-40" aria-hidden="true" />
+                  <p className="text-sm">No custom headers</p>
+                  <p className="text-xs opacity-70">
+                    Click to add a response header
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {/* Column labels */}
+                  <div className="grid grid-cols-[1fr_1fr_auto] gap-2 px-1">
+                    <span className="text-xs text-muted-foreground font-medium">
+                      Header Name
+                    </span>
+                    <span className="text-xs text-muted-foreground font-medium">
+                      Value
+                    </span>
+                    <span className="w-8" />
+                  </div>
+
+                  {headerFields.map((headerField, index) => (
+                    <div
+                      key={headerField.id}
+                      className="grid grid-cols-[1fr_1fr_auto] gap-2 items-start"
+                    >
+                      <FormField
+                        control={form.control}
+                        name={`headers.${index}.key`}
+                        render={({ field }) => (
+                          <FormItem className="space-y-0">
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder="Content-Type"
+                                className="bg-input border-border text-foreground placeholder:text-muted-foreground font-mono text-sm h-9"
+                                aria-label={`Header ${index + 1} name`}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-xs mt-1" />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`headers.${index}.value`}
+                        render={({ field }) => (
+                          <FormItem className="space-y-0">
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder="text/html; charset=utf-8"
+                                className="bg-input border-border text-foreground placeholder:text-muted-foreground font-mono text-sm h-9"
+                                aria-label={`Header ${index + 1} value`}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-xs mt-1" />
+                          </FormItem>
+                        )}
+                      />
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="size-9 text-muted-foreground hover:text-destructive shrink-0"
+                              onClick={() => removeHeader(index)}
+                              aria-label={`Remove header ${index + 1}`}
+                            >
+                              <X className="size-4" aria-hidden="true" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Remove header</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  ))}
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => appendHeader({ key: "", value: "" })}
+                    className="gap-1.5 text-xs text-muted-foreground hover:text-foreground w-full mt-1 border border-dashed border-border hover:border-muted-foreground h-8"
+                  >
+                    <Plus className="size-3" aria-hidden="true" />
+                    Add another header
+                  </Button>
+                </div>
+              )}
+
+              <FormDescription>
+                Optional HTTP headers returned with the response
+              </FormDescription>
+            </FormItem>
+
             {/* Content Field */}
             <FormField
               control={form.control}
@@ -448,11 +816,11 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
                     onValueChange={(v) => setInputMethod(v as InputMethod)}
                     className="w-full"
                   >
-                    <TabsList variant={"line"} className="grid w-full grid-cols-2">
-                      <TabsTrigger
-                        value="code"
-                        className="gap-2"
-                      >
+                    <TabsList
+                      variant={"line"}
+                      className="grid w-full grid-cols-2"
+                    >
+                      <TabsTrigger value="code" className="gap-2">
                         <Code2 className="size-4" aria-hidden="true" />
                         Code Editor
                       </TabsTrigger>
@@ -470,7 +838,9 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
                         <CodeEditor
                           value={field.value || ""}
                           onChange={(value) =>
-                            form.setValue("body", value, { shouldValidate: true })
+                            form.setValue("body", value, {
+                              shouldValidate: true,
+                            })
                           }
                           placeholder={`// Enter your page code here...\n\nexport default function Page() {\n  return (\n    <div>\n      Hello World!\n    </div>\n  );\n}`}
                           minHeight="350px"
@@ -499,14 +869,14 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
                         tabIndex={0}
                         aria-label="Click or drag to upload a file"
                         className={`
-                        relative flex min-h-[350px] cursor-pointer flex-col items-center justify-center gap-4
-                        rounded-lg border-2 border-dashed transition-all duration-200
-                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
-                        ${isDragOver
+                          relative flex min-h-[350px] cursor-pointer flex-col items-center justify-center gap-4
+                          rounded-lg border-2 border-dashed transition-all duration-200
+                          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
+                          ${isDragOver
                             ? "border-accent bg-accent/10"
                             : "border-border bg-input hover:border-muted-foreground hover:bg-secondary/50"
                           }
-                      `}
+                        `}
                       >
                         <input
                           ref={fileInputRef}
@@ -543,7 +913,9 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setUploadedFile(null);
-                                form.setValue("body", "", { shouldValidate: true });
+                                form.setValue("body", "", {
+                                  shouldValidate: true,
+                                });
                               }}
                               className="gap-2"
                             >
@@ -618,7 +990,7 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
                       Are you sure you want to reset?
                     </AlertDialogTitle>
                     <AlertDialogDescription>
-                      This will clear all data entered in the form. You won't be
+                      This will clear all data entered in the form. You won&apos;t be
                       able to recover your changes.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
@@ -680,9 +1052,7 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
         <div className="pt-8 border-t border-border">
           <SavedPagesList refreshTrigger={refreshTrigger} onEdit={handleEdit} />
         </div>
-
       </div>
-
 
       {/* Confirmation Dialog */}
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
@@ -700,22 +1070,52 @@ export default function PageCreator({ onSuccess }: PageCreatorProps) {
                 </p>
                 <div className="rounded-lg bg-secondary p-3 space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">Endpoint:</span>
-                    <code className="rounded bg-input px-2 py-0.5 font-mono text-foreground">
+                    <span className="text-muted-foreground text-sm">
+                      Endpoint:
+                    </span>
+                    <code className="rounded bg-input px-2 py-0.5 font-mono text-foreground text-sm">
                       {endpoint}
                     </code>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">Source:</span>
-                    <span className="text-foreground">
+                    <span className="text-muted-foreground text-sm">
+                      Status Code:
+                    </span>
+                    <span
+                      className={`font-mono text-sm font-medium ${getStatusCodeColor(statusCodeNum)}`}
+                    >
+                      {statusCodeNum}
+                    </span>
+                  </div>
+                  {headerFields.length > 0 && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-muted-foreground text-sm shrink-0">
+                        Headers:
+                      </span>
+                      <div className="space-y-0.5">
+                        {form.getValues("headers").filter((h) => h.key.trim() !== "").map((h, i) => (
+                          <div key={i} className="font-mono text-xs">
+                            <span className="text-accent">{h.key}</span>
+                            <span className="text-muted-foreground">: </span>
+                            <span className="text-foreground">{h.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground text-sm">
+                      Source:
+                    </span>
+                    <span className="text-foreground text-sm">
                       {inputMethod === "code"
                         ? "Code editor"
                         : uploadedFile?.name}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">Size:</span>
-                    <span className="text-foreground">
+                    <span className="text-muted-foreground text-sm">Size:</span>
+                    <span className="text-foreground text-sm">
                       {body?.length || 0} characters
                     </span>
                   </div>

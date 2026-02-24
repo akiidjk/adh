@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -119,21 +120,33 @@ func AddRequest(key string, value interface{}) error {
 	return execErr
 }
 
-func GetPage(endpoint string) (string, error) {
+type Response struct {
+	Body    string            `json:"body"`
+	Status  int               `json:"statusCode"`
+	Headers map[string]string `json:"headers"`
+}
+
+func GetResponse(endpoint string) (Response, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	result := client.HGet(ctx, "page_data", endpoint)
 	if result.Err() != nil {
-		return "", result.Err()
+		return Response{}, result.Err()
 	}
 
 	data, err := result.Result()
 	if err != nil {
-		return "", err
+		return Response{}, err
 	}
 
-	return data, nil
+	var response Response
+	err = json.Unmarshal([]byte(data), &response)
+	if err != nil {
+		return Response{}, err
+	}
+
+	return response, nil
 }
 
 func RedisHealthChecker(stop chan bool, status chan bool) {

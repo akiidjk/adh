@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 import { toast } from "sonner";
 import {
   FileCode,
@@ -14,6 +14,8 @@ import {
   Loader2,
   FolderOpen,
   Edit,
+  Hash,
+  Tags,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -40,37 +42,61 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { PagePreviewDialog } from "@/components/page-preview-dialog";
+import type { StoredPageData } from "@/lib/models";
 
-type PagesData = Record<string, string>;
+type PagesData = Record<string, StoredPageData>;
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-interface SavedPagesListProps {
-  refreshTrigger?: number;
-  onEdit?: (endpoint: string, code: string) => void;
+function getStatusCodeColor(code: number): string {
+  if (code >= 200 && code < 300) return "text-emerald-500";
+  if (code >= 300 && code < 400) return "text-blue-400";
+  if (code >= 400 && code < 500) return "text-amber-500";
+  if (code >= 500) return "text-destructive";
+  return "text-muted-foreground";
 }
 
-export function SavedPagesList({ refreshTrigger, onEdit }: SavedPagesListProps) {
+function getStatusCodeBadgeClass(code: number): string {
+  if (code >= 200 && code < 300)
+    return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
+  if (code >= 300 && code < 400)
+    return "bg-blue-400/10 text-blue-400 border-blue-400/20";
+  if (code >= 400 && code < 500)
+    return "bg-amber-500/10 text-amber-500 border-amber-500/20";
+  if (code >= 500)
+    return "bg-destructive/10 text-destructive border-destructive/20";
+  return "bg-secondary text-muted-foreground";
+}
+
+export interface SavedPagesListProps {
+  refreshTrigger?: number;
+  onEdit?: (endpoint: string, data: StoredPageData) => void;
+}
+
+export function SavedPagesList({
+  refreshTrigger,
+  onEdit,
+}: SavedPagesListProps) {
   const [isOpen, setIsOpen] = React.useState(true);
-  const [deletingEndpoint, setDeletingEndpoint] = React.useState<string | null>(null);
+  const [deletingEndpoint, setDeletingEndpoint] = React.useState<string | null>(
+    null
+  );
   const [previewPage, setPreviewPage] = React.useState<{
     endpoint: string;
     code: string;
   } | null>(null);
 
-  const { data, error, isValidating, isLoading, mutate: refreshData } = useSWR<PagesData>(
-    "/api/create",
-    fetcher,
-    {
-      refreshInterval: 0,
-      revalidateOnFocus: false,
-    }
-  );
+  const {
+    data,
+    error,
+    isValidating,
+    isLoading,
+    mutate: refreshData,
+  } = useSWR<PagesData>("/api/create", fetcher, {
+    refreshInterval: 0,
+    revalidateOnFocus: false,
+  });
 
-  // Consider the SWR "loading" state to be when:
-  // - the isLoading flag is true (SWR v2), OR
-  // - isValidating is true (SWR v1/v2), OR
-  // - there is no data and no error (initial fetch)
   const isFetching = Boolean(isLoading || isValidating || (!data && !error));
 
   React.useEffect(() => {
@@ -122,7 +148,10 @@ export function SavedPagesList({ refreshTrigger, onEdit }: SavedPagesListProps) 
               aria-expanded={isOpen}
             >
               <div className="flex size-10 items-center justify-center rounded-lg bg-secondary">
-                <FolderOpen className="size-5 text-accent" aria-hidden="true" />
+                <FolderOpen
+                  className="size-5 text-accent"
+                  aria-hidden="true"
+                />
               </div>
               <div className="text-left">
                 <h3 className="font-semibold text-foreground flex items-center gap-2">
@@ -188,49 +217,101 @@ export function SavedPagesList({ refreshTrigger, onEdit }: SavedPagesListProps) 
               </div>
             ) : (
               <ul className="divide-y divide-border" role="list">
-                {pages.map(([endpoint, code]) => (
-                  <li
-                    key={endpoint}
-                    className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-secondary/30 transition-colors"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="flex size-8 shrink-0 items-center justify-center rounded bg-secondary">
-                        <FileCode
-                          className="size-4 text-muted-foreground"
-                          aria-hidden="true"
-                        />
-                      </div>
-                      <div className="min-w-0">
-                        <code className="text-sm font-mono text-foreground truncate block">
-                          /{endpoint}
-                        </code>
-                        <span className="text-xs text-muted-foreground">
-                          {code.length} characters
-                        </span>
-                      </div>
-                    </div>
+                {pages.map(([endpoint, pageData]) => {
+                  const bodyLength = pageData.body?.length ?? 0;
+                  const headersCount = Object.keys(pageData.headers ?? {}).length;
+                  const statusCode = pageData.statusCode ?? 200;
 
-                    <div className="flex items-center gap-1 shrink-0">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="size-8"
-                              onClick={() =>
-                                setPreviewPage({ endpoint, code })
-                              }
-                              aria-label={`View /${endpoint}`}
-                            >
-                              <Eye className="size-4" aria-hidden="true" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>View</TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                  return (
+                    <li
+                      key={endpoint}
+                      className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-secondary/30 transition-colors"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex size-8 shrink-0 items-center justify-center rounded bg-secondary">
+                          <FileCode
+                            className="size-4 text-muted-foreground"
+                            aria-hidden="true"
+                          />
+                        </div>
+                        <div className="min-w-0 space-y-1">
+                          <code className="text-sm font-mono text-foreground truncate block">
+                            /{endpoint}
+                          </code>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {/* Status code badge */}
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span
+                                    className={`inline-flex items-center gap-1 text-xs font-mono px-1.5 py-0.5 rounded border ${getStatusCodeBadgeClass(statusCode)}`}
+                                  >
+                                    <Hash
+                                      className="size-2.5"
+                                      aria-hidden="true"
+                                    />
+                                    {statusCode}
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  HTTP status code
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
 
-                      {onEdit && (
+                            {/* Body size */}
+                            <span className="text-xs text-muted-foreground">
+                              {bodyLength} chars
+                            </span>
+
+                            {/* Headers count */}
+                            {headersCount > 0 && (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground cursor-help">
+                                      <Tags
+                                        className="size-3"
+                                        aria-hidden="true"
+                                      />
+                                      {headersCount}{" "}
+                                      {headersCount === 1
+                                        ? "header"
+                                        : "headers"}
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent
+                                    side="bottom"
+                                    className="max-w-xs"
+                                  >
+                                    <p className="font-medium mb-1">
+                                      Custom headers
+                                    </p>
+                                    <ul className="space-y-0.5">
+                                      {Object.entries(pageData.headers ?? {}).map(([key, value], i) => (
+                                        <li
+                                          key={i}
+                                          className="text-xs font-mono"
+                                        >
+                                          <span className="text-accent">
+                                            {key}
+                                          </span>
+                                          <span className="text-muted-foreground">
+                                            :{" "}
+                                          </span>
+                                          <span>{value}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1 shrink-0">
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -238,70 +319,100 @@ export function SavedPagesList({ refreshTrigger, onEdit }: SavedPagesListProps) 
                                 variant="ghost"
                                 size="icon"
                                 className="size-8"
-                                onClick={() => onEdit(endpoint, code)}
-                                aria-label={`Edit /${endpoint}`}
+                                onClick={() =>
+                                  setPreviewPage({
+                                    endpoint,
+                                    code: pageData.body ?? "",
+                                  })
+                                }
+                                aria-label={`View /${endpoint}`}
                               >
-                                <Edit className="size-4" aria-hidden="true" />
+                                <Eye className="size-4" aria-hidden="true" />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>Edit</TooltipContent>
+                            <TooltipContent>View</TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
-                      )}
 
-                      <AlertDialog>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <AlertDialogTrigger asChild>
+                        {onEdit && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="size-8 text-muted-foreground hover:text-destructive"
-                                  disabled={deletingEndpoint === endpoint}
-                                  aria-label={`Delete /${endpoint}`}
+                                  className="size-8"
+                                  onClick={() => onEdit(endpoint, pageData)}
+                                  aria-label={`Edit /${endpoint}`}
                                 >
-                                  {deletingEndpoint === endpoint ? (
-                                    <Loader2
-                                      className="size-4 animate-spin"
-                                      aria-hidden="true"
-                                    />
-                                  ) : (
-                                    <Trash2 className="size-4" aria-hidden="true" />
-                                  )}
+                                  <Edit
+                                    className="size-4"
+                                    aria-hidden="true"
+                                  />
                                 </Button>
-                              </AlertDialogTrigger>
-                            </TooltipTrigger>
-                            <TooltipContent>Delete</TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>
-                              Delete this page?
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              You are about to delete{" "}
-                              <code className="text-foreground font-mono bg-secondary px-1.5 py-0.5 rounded">
-                                /{endpoint}
-                              </code>
-                              . This action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDelete(endpoint)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </li>
-                ))}
+                              </TooltipTrigger>
+                              <TooltipContent>Edit</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+
+                        <AlertDialog>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="size-8 text-muted-foreground hover:text-destructive"
+                                    disabled={deletingEndpoint === endpoint}
+                                    aria-label={`Delete /${endpoint}`}
+                                  >
+                                    {deletingEndpoint === endpoint ? (
+                                      <Loader2
+                                        className="size-4 animate-spin"
+                                        aria-hidden="true"
+                                      />
+                                    ) : (
+                                      <Trash2
+                                        className="size-4"
+                                        aria-hidden="true"
+                                      />
+                                    )}
+                                  </Button>
+                                </AlertDialogTrigger>
+                              </TooltipTrigger>
+                              <TooltipContent>Delete</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                Delete this page?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                You are about to delete{" "}
+                                <code className="text-foreground font-mono bg-secondary px-1.5 py-0.5 rounded">
+                                  /{endpoint}
+                                </code>
+                                . This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDelete(endpoint)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>

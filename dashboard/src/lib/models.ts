@@ -52,6 +52,13 @@ export interface RequestMessage {
   uniqueid: string;
 }
 
+export const headerEntrySchema = zod.object({
+  key: zod.string().min(1, "Header name is required"),
+  value: zod.string(),
+});
+
+export type HeaderEntry = zod.infer<typeof headerEntrySchema>;
+
 export const pageSchema = zod.object({
   endpoint: zod.string()
       .trim()
@@ -62,6 +69,17 @@ export const pageSchema = zod.object({
         message: "L'endpoint può contenere solo lettere, numeri, trattini (-), underscore (_) e slash (/)",
       }),
   body: zod.string().optional(),
+  statusCode: zod.number()
+    .int("Status code must be an integer")
+    .min(100, "Status code must be between 100 and 599")
+    .max(599, "Status code must be between 100 and 599"),
+  headers: zod.array(headerEntrySchema),
 });
 
 export type PageData = zod.infer<typeof pageSchema>;
+
+export interface StoredPageData {
+  body?: string;
+  statusCode: number;
+  headers: Record<string, string>;
+}

@@ -37,16 +37,22 @@ func GetExploit(w http.ResponseWriter, r *http.Request) {
 
 func ServePage(w http.ResponseWriter, r *http.Request) {
 	middleware.SetCORSHeaders(w)
-	w.WriteHeader(http.StatusOK)
 	endpoint := r.PathValue("endpoint")
 	logger.Debug("Serving page: %s", endpoint)
-	pageContent, err := redis.GetPage(endpoint)
+	response, err := redis.GetResponse(endpoint)
 	if err != nil {
 		logger.Error("Error retrieving page from Redis: %v", err)
 		http.Error(w, "Page not found", http.StatusNotFound)
 		return
 	}
-	_, err = w.Write([]byte(pageContent))
+
+	for header, value := range response.Headers {
+		w.Header().Set(header, value)
+	}
+
+	w.WriteHeader(response.Status)
+
+	_, err = w.Write([]byte(response.Body))
 	if err != nil {
 		logger.Error("Error writing page content: %v", err)
 	}
