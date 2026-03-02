@@ -1,90 +1,120 @@
 "use client";
 
 import * as React from "react";
+import { useRef } from "react";
 import { cn } from "@/lib/utils";
+import Editor, { type OnMount } from "@monaco-editor/react";
+import { useTheme } from "next-themes";
+import type * as Monaco from "monaco-editor";
+import { defineThemes } from "./code-theme";
 
 interface CodeEditorProps {
   value: string;
   onChange: (value: string) => void;
+  onSave?: (value: string) => void;
   placeholder?: string;
+  language?: string;
   className?: string;
   minHeight?: string;
 }
 
+
+// ── Component ────────────────────────────────────────────────────────────────
+
 export function CodeEditor({
   value,
   onChange,
+  onSave,
   placeholder = "// Inserisci il tuo codice qui...",
+  language = "html",
   className,
   minHeight = "400px",
 }: CodeEditorProps) {
-  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
-  const lineNumbersRef = React.useRef<HTMLDivElement>(null);
+  const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
+  const { resolvedTheme } = useTheme();
 
-  const lines = value.split("\n");
-  const lineCount = Math.max(lines.length, 20);
+  const monacoTheme = resolvedTheme === "dark" ? "adh-dark" : "adh-light";
 
-  const handleScroll = () => {
-    if (textareaRef.current && lineNumbersRef.current) {
-      lineNumbersRef.current.scrollTop = textareaRef.current.scrollTop;
-    }
-  };
+  // Re-define themes and re-apply whenever the active theme changes so that
+  // the freshly-computed CSS variable values are always used.
+  React.useEffect(() => {
+    if (!editorRef.current) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const monaco = (window as any).monaco as typeof Monaco | undefined;
+    if (!monaco) return;
+    defineThemes(monaco);
+    monaco.editor.setTheme(monacoTheme);
+  }, [monacoTheme]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Tab") {
-      e.preventDefault();
-      const textarea = textareaRef.current;
-      if (textarea) {
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        const newValue = value.substring(0, start) + "  " + value.substring(end);
-        onChange(newValue);
-        // Set cursor position after tab
-        setTimeout(() => {
-          textarea.selectionStart = textarea.selectionEnd = start + 2;
-        }, 0);
-      }
-    }
+  const handleMount: OnMount = (editor, monaco) => {
+    editorRef.current = editor;
+
+    // Expose monaco on window so the effect above can reach it after mount.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).monaco = monaco;
+
+    // Define themes with the current CSS variable values and apply immediately.
+    defineThemes(monaco);
+    monaco.editor.setTheme(monacoTheme);
+
+    // Ctrl+S / Cmd+S → call onSave with the current model content.
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+      onSave?.(editor.getValue());
+    });
+
+    // Prevent the browser's native Save dialog from opening.
+    editor.getDomNode()?.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") e.preventDefault();
+    });
   };
 
   return (
     <div
       className={cn(
-        "relative flex overflow-hidden rounded-lg border border-border bg-input font-mono text-sm",
-        className
+        "overflow-hidden rounded-lg border border-border font-mono text-sm",
+        className,
       )}
       style={{ minHeight }}
     >
-      {/* Line numbers */}
-      <div
-        ref={lineNumbersRef}
-        className="flex-shrink-0 select-none overflow-hidden bg-secondary/50 px-3 py-3 text-right text-muted-foreground"
-        style={{ minHeight }}
-      >
-        {Array.from({ length: lineCount }, (_, i) => (
-          <div key={i} className="leading-6">
-            {i + 1}
-          </div>
-        ))}
-      </div>
-
-      {/* Code area */}
-      <div className="relative flex-1">
-        <textarea
-          ref={textareaRef}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onScroll={handleScroll}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          spellCheck={false}
-          className={cn(
-            "absolute inset-0 h-full w-full resize-none bg-transparent p-3 leading-6 text-foreground placeholder:text-muted-foreground focus:outline-none",
-            "scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border"
-          )}
-          style={{ minHeight }}
-        />
-      </div>
+      <Editor
+        height={minHeight}
+        language={language}
+        value={value}
+        theme={monacoTheme}
+        onMount={handleMount}
+        onChange={(val) => onChange(val ?? "")}
+        options={{
+          // Font
+          fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+          fontLigatures: true,
+          fontSize: 14,
+          lineHeight: 24,
+          // Layout
+          minimap: { enabled: false },
+          scrollBeyondLastLine: false,
+          wordWrap: "on",
+          automaticLayout: true,
+          // UX
+          tabSize: 2,
+          insertSpaces: true,
+          formatOnPaste: true,
+          formatOnType: true,
+          smoothScrolling: true,
+          cursorBlinking: "smooth",
+          cursorSmoothCaretAnimation: "on",
+          renderLineHighlight: "line",
+          // Gutters
+          lineNumbers: "on",
+          glyphMargin: false,
+          folding: true,
+          // Scrollbar
+          scrollbar: {
+            verticalScrollbarSize: 6,
+            horizontalScrollbarSize: 6,
+          },
+          placeholder,
+        }}
+      />
     </div>
   );
 }

@@ -9,8 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ArrowDown, ChevronDown, LogOut, Navigation, Pencil } from "lucide-react";
-import { ModeToggle } from "@/components/ui/mode-toggle";
+import { ChevronDown, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "./ui/dropdown-menu";
@@ -95,8 +94,6 @@ export function Header({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-
-          {showModeToggle && <ModeToggle />}
 
           {onLogout && (
             <TooltipProvider>

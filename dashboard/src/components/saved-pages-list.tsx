@@ -48,25 +48,10 @@ type PagesData = Record<string, StoredPageData>;
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-function getStatusCodeColor(code: number): string {
-  if (code >= 200 && code < 300) return "text-emerald-500";
-  if (code >= 300 && code < 400) return "text-blue-400";
-  if (code >= 400 && code < 500) return "text-amber-500";
-  if (code >= 500) return "text-destructive";
-  return "text-muted-foreground";
-}
-
-function getStatusCodeBadgeClass(code: number): string {
-  if (code >= 200 && code < 300)
-    return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
-  if (code >= 300 && code < 400)
-    return "bg-blue-400/10 text-blue-400 border-blue-400/20";
-  if (code >= 400 && code < 500)
-    return "bg-amber-500/10 text-amber-500 border-amber-500/20";
-  if (code >= 500)
-    return "bg-destructive/10 text-destructive border-destructive/20";
-  return "bg-secondary text-muted-foreground";
-}
+import {
+  getStatusCodeColor,
+  getStatusCodeBadgeClass,
+} from "@/lib/status-code";
 
 export interface SavedPagesListProps {
   refreshTrigger?: number;
