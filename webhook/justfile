@@ -1,0 +1,47 @@
+#!/usr/bin/env just --justfile
+
+BIN_DIR := "./bin"
+RESET := "\\033[0m"
+
+[group('info')]
+help:
+    @just --list
+
+[group('build')]
+build:
+	@echo -e "{{CYAN}}[*] Building {{BOLD}}...{{RESET}}"
+	@mkdir -p {{BIN_DIR}}
+	@go build -o {{BIN_DIR}}/ ./cmd/main.go
+	@echo -e "{{GREEN}}[+] Build complete!{{RESET}}"
+
+test:
+	@go test ./...
+
+[group('dev')]
+install: build
+	@echo -e "{{CYAN}}[*] Installing {{BOLD}}...{{RESET}}"
+	@go install .
+	@echo -e "{{GREEN}}[+] Install complete!{{RESET}}"
+
+[group('dev')]
+run: build
+	@echo -e "{{CYAN}}[*] Running {{BOLD}}...{{RESET}}"
+	@{{BIN_DIR}}/main
+
+[group('info')]
+version:
+	@echo -e "{{GREEN}}[+] Version adh v1.5{{RESET}}"
+
+[group('dev')]
+clean:
+	@echo -e "{{YELLOW}}[*] Cleaning binaries...{{RESET}}"
+	@rm -rf {{BIN_DIR}}/*
+
+
+[group('tools')]
+lint:
+    @go list -f \{\{.Dir\}\} -m | xargs golangci-lint run --fix
+
+[group('tools')]
+fmt:
+    @go list -f \{\{.Dir\}\} -m | xargs gofumpt -w -d

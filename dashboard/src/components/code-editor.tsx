@@ -34,7 +34,6 @@ export function CodeEditor({
   const { resolvedTheme } = useTheme();
 
   const monacoTheme = resolvedTheme === "dark" ? "adh-dark" : "adh-light";
-
   // Re-define themes and re-apply whenever the active theme changes so that
   // the freshly-computed CSS variable values are always used.
   React.useEffect(() => {
@@ -71,7 +70,7 @@ export function CodeEditor({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-lg border border-border font-mono text-sm",
+        "overflow-hidden rounded-md border border-border font-mono text-sm",
         className,
       )}
       style={{ minHeight }}

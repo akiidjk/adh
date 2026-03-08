@@ -138,7 +138,7 @@ export function ContentField({
                   onChange={(e) =>
                     setLanguage(e.target.value as typeof language)
                   }
-                  className="rounded-md border px-2 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="rounded-md border px-4 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   aria-label="Select language"
                 >
                   {LANGUAGE_OPTIONS.map((opt) => (
