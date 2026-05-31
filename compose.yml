@@ -13,9 +13,7 @@ services:
     depends_on:
       - redis
     volumes:
-      - ./adh-webhook/logs:/tmp/webhook
-    profiles:
-      - full
+      - ./webhook/logs:/var/log/webhook
 
   dashboard:
     build: ./dashboard
@@ -26,22 +24,19 @@ services:
       - REDIS_URL=${REDIS_URL:-redis://redis:6379}
       - USER_ID=${USER_ID:-0}
       - USER_NAME=${USER_NAME:-user}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
       - USER_PASSWORD=${USER_PASSWORD:-password}
     depends_on:
       redis:
         condition: service_healthy
     volumes:
-      - ./adh-dashboard/logs:/tmp/webhook
-    profiles:
-      - full
+      - ./dashboard/logs:/tmp/log/dashboard
 
   redis:
     image: redis/redis-stack-server:latest
     container_name: redis
     environment:
       - REDIS_ARGS=--requirepass ${REDIS_PASSWORD}
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
     healthcheck:
@@ -50,14 +45,6 @@ services:
       timeout: 3s
       retries: 5
 
-  redisinsight:
-    image: redis/redisinsight:latest
-    ports:
-      - "5540:5540"
-    volumes:
-      - redis-insight:/data
-
 volumes:
   redis_data:
     driver: local
-  redis-insight:
