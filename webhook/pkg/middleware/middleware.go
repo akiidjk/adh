@@ -126,6 +126,13 @@ func LoggerMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
+		for header, values := range r.Header {
+			if header == "User-Agent" && strings.Contains(strings.ToLower(values[0]), "uptime-kuma") {
+				next.ServeHTTP(w, r) // if is uptime-kuma, don't store in redis
+				return
+			}
+		}
+
 		err = redis.AddRequest(strconv.FormatInt(time.Now().UnixMilli(), 10), marshaledRequest)
 		if err != nil {
 			logger.Error("Error storing request in Redis: %v", err)
