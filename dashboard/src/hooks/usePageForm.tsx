@@ -43,7 +43,7 @@ export function usePageForm(onSuccess?: () => void) {
   const body = form.watch("body");
   const statusCode = form.watch("statusCode");
 
-  const endpointPattern = /^[A-Za-z0-9_\-\/]+$/;
+  const endpointPattern = /^[A-Za-z0-9_.\-\/]+$/;
   const isValidEndpoint =
     typeof endpoint === "string" &&
     endpoint.length > 1 &&

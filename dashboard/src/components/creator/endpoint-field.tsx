@@ -66,7 +66,7 @@ export function EndpointField({
                   <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
                     <li>-Must start with /</li>
                     <li>-Length: 2-99 characters</li>
-                    <li>-Only letters, numbers, -, _ and /</li>
+                    <li>-Only letters, numbers, -, _, . and /</li>
                   </ul>
                   <p className="mt-2 text-xs">
                     <span className="text-muted-foreground">Examples: </span>
