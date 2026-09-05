@@ -110,7 +110,7 @@ export default function Home() {
         onDeleteAll={handleDeleteAll}
       />
 
-      <ResizablePanelGroup direction='horizontal'>
+      <ResizablePanelGroup orientation='horizontal'>
         <ResizablePanel defaultSize={25} minSize={25}>
           <ListRequests messages={displayMessages} loading={loading} onDelete={handleDelete} onSelect={handleSelect} />
         </ResizablePanel>
