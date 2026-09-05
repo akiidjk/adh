@@ -41,7 +41,7 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	logFile, err = os.OpenFile(fmt.Sprintf("/tmp/webhook/adh-webhook-%d.log", time.Now().Unix()), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o666)
+	logFile, err = os.OpenFile(fmt.Sprintf("/tmp/adh/adh-webhook-%d.log", time.Now().Unix()), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o666)
 	if err != nil {
 		log.Fatal(err)
 	}
