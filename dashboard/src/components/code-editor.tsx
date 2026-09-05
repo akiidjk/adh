@@ -1,12 +1,13 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { useRef } from "react";
-import { cn } from "@/lib/utils";
-import Editor, { type OnMount } from "@monaco-editor/react";
-import { useTheme } from "next-themes";
-import type * as Monaco from "monaco-editor";
-import { defineThemes } from "./code-theme";
+import { cn } from '@/lib/utils';
+import Editor, { type OnMount } from '@monaco-editor/react';
+import type * as Monaco from 'monaco-editor';
+import { useTheme } from 'next-themes';
+import * as React from 'react';
+import { useRef } from 'react';
+
+import { defineThemes } from './code-theme';
 
 interface CodeEditorProps {
   value: string;
@@ -18,22 +19,21 @@ interface CodeEditorProps {
   minHeight?: string;
 }
 
-
 // ── Component ────────────────────────────────────────────────────────────────
 
 export function CodeEditor({
   value,
   onChange,
   onSave,
-  placeholder = "// Inserisci il tuo codice qui...",
-  language = "html",
+  placeholder = '// Inserisci il tuo codice qui...',
+  language = 'html',
   className,
-  minHeight = "400px",
+  minHeight = '400px'
 }: CodeEditorProps) {
   const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
   const { resolvedTheme } = useTheme();
 
-  const monacoTheme = resolvedTheme === "dark" ? "adh-dark" : "adh-light";
+  const monacoTheme = resolvedTheme === 'dark' ? 'adh-dark' : 'adh-light';
   // Re-define themes and re-apply whenever the active theme changes so that
   // the freshly-computed CSS variable values are always used.
   React.useEffect(() => {
@@ -62,26 +62,22 @@ export function CodeEditor({
     });
 
     // Prevent the browser's native Save dialog from opening.
-    editor.getDomNode()?.addEventListener("keydown", (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "s") e.preventDefault();
+    editor.getDomNode()?.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') e.preventDefault();
     });
   };
 
   return (
     <div
-      className={cn(
-        "overflow-hidden rounded-md border border-border font-mono text-sm",
-        className,
-      )}
-      style={{ minHeight }}
-    >
+      className={cn('overflow-hidden rounded-md border border-border font-mono text-sm', className)}
+      style={{ minHeight }}>
       <Editor
         height={minHeight}
         language={language}
         value={value}
         theme={monacoTheme}
         onMount={handleMount}
-        onChange={(val) => onChange(val ?? "")}
+        onChange={(val) => onChange(val ?? '')}
         options={{
           // Font
           fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
@@ -91,7 +87,7 @@ export function CodeEditor({
           // Layout
           minimap: { enabled: false },
           scrollBeyondLastLine: false,
-          wordWrap: "on",
+          wordWrap: 'on',
           automaticLayout: true,
           // UX
           tabSize: 2,
@@ -99,19 +95,19 @@ export function CodeEditor({
           formatOnPaste: true,
           formatOnType: true,
           smoothScrolling: true,
-          cursorBlinking: "smooth",
-          cursorSmoothCaretAnimation: "on",
-          renderLineHighlight: "line",
+          cursorBlinking: 'smooth',
+          cursorSmoothCaretAnimation: 'on',
+          renderLineHighlight: 'line',
           // Gutters
-          lineNumbers: "on",
+          lineNumbers: 'on',
           glyphMargin: false,
           folding: true,
           // Scrollbar
           scrollbar: {
             verticalScrollbarSize: 6,
-            horizontalScrollbarSize: 6,
+            horizontalScrollbarSize: 6
           },
-          placeholder,
+          placeholder
         }}
       />
     </div>

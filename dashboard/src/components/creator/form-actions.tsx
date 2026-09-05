@@ -1,8 +1,5 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { Trash2, Send, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,14 +9,12 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  AlertDialogTrigger
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Loader2, Send, Trash2 } from 'lucide-react';
+import * as React from 'react';
 
 interface FormActionsProps {
   isLoading: boolean;
@@ -40,29 +35,28 @@ export function FormActions({
   hasContent,
   hasAnything,
   onReset,
-  onSubmit,
+  onSubmit
 }: FormActionsProps) {
-  const submitLabel = isEditMode ? "Update Page" : "Create Page";
-  const submittingLabel = isEditMode ? "Updating..." : "Creating...";
+  const submitLabel = isEditMode ? 'Update Page' : 'Create Page';
+  const submittingLabel = isEditMode ? 'Updating...' : 'Creating...';
 
   const disabledReason = !isValidEndpoint
-    ? "Enter a valid endpoint (e.g.: /about)"
+    ? 'Enter a valid endpoint (e.g.: /about)'
     : !hasContent
-      ? "Enter code or upload a file"
+      ? 'Enter code or upload a file'
       : undefined;
 
   return (
-    <div className="flex items-center gap-3 pt-4">
+    <div className='flex items-center gap-3 pt-4'>
       {/* Reset button — guarded by a confirm dialog */}
       <AlertDialog>
         <AlertDialogTrigger asChild>
           <Button
-            type="button"
-            variant="outline"
-            className="gap-2 border-border text-muted-foreground hover:text-foreground bg-transparent"
-            disabled={!hasAnything}
-          >
-            <Trash2 className="size-4" aria-hidden="true" />
+            type='button'
+            variant='outline'
+            className='gap-2 border-border text-muted-foreground hover:text-foreground bg-transparent'
+            disabled={!hasAnything}>
+            <Trash2 className='size-4' aria-hidden='true' />
             Reset
           </Button>
         </AlertDialogTrigger>
@@ -70,16 +64,14 @@ export function FormActions({
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure you want to reset?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will clear all data entered in the form. You won&apos;t be
-              able to recover your changes.
+              This will clear all data entered in the form. You won&apos;t be able to recover your changes.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={onReset}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
+              className='bg-destructive text-destructive-foreground hover:bg-destructive/90'>
               Confirm Reset
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -91,33 +83,27 @@ export function FormActions({
         <Tooltip>
           <TooltipTrigger asChild>
             {/* span keeps the tooltip working even when the button is disabled */}
-            <span className="flex-1">
+            <span className='flex-1'>
               <Button
-                type="button"
-                className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+                type='button'
+                className='w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90'
                 disabled={!canSubmit}
-                onClick={onSubmit}
-              >
+                onClick={onSubmit}>
                 {isLoading ? (
                   <>
-                    <Loader2
-                      className="size-4 animate-spin"
-                      aria-hidden="true"
-                    />
+                    <Loader2 className='size-4 animate-spin' aria-hidden='true' />
                     {submittingLabel}
                   </>
                 ) : (
                   <>
-                    <Send className="size-4" aria-hidden="true" />
+                    <Send className='size-4' aria-hidden='true' />
                     {submitLabel}
                   </>
                 )}
               </Button>
             </span>
           </TooltipTrigger>
-          {disabledReason && (
-            <TooltipContent>{disabledReason}</TooltipContent>
-          )}
+          {disabledReason && <TooltipContent>{disabledReason}</TooltipContent>}
         </Tooltip>
       </TooltipProvider>
     </div>

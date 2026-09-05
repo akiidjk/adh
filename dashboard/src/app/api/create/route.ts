@@ -4,7 +4,6 @@ import { PageData, StoredPageData, pageSchema } from '@/lib/models';
 import { getClient } from '@/lib/redis';
 import { NextRequest, NextResponse } from 'next/server';
 
-
 export async function GET() {
   const client = await getClient();
   const result = await client.HGETALL('page_data');
@@ -23,18 +22,12 @@ export async function DELETE(request: NextRequest) {
   const endpoint = searchParams.get('endpoint');
 
   if (!endpoint) {
-    return NextResponse.json(
-      { success: false, message: 'Endpoint query parameter is required' },
-      { status: 400 }
-    );
+    return NextResponse.json({ success: false, message: 'Endpoint query parameter is required' }, { status: 400 });
   }
 
   await client.hDel('page_data', endpoint);
 
-  return NextResponse.json(
-    { success: true, message: `Page data for endpoint '${endpoint}' deleted` },
-    { status: 200 }
-  );
+  return NextResponse.json({ success: true, message: `Page data for endpoint '${endpoint}' deleted` }, { status: 200 });
 }
 
 export async function POST(request: NextRequest) {
@@ -48,7 +41,7 @@ export async function POST(request: NextRequest) {
       {
         success: false,
         message: 'Validation failed',
-        errors: errors.fieldErrors,
+        errors: errors.fieldErrors
       },
       { status: 400 }
     );
@@ -60,18 +53,13 @@ export async function POST(request: NextRequest) {
   const stored: StoredPageData = {
     body: validatedData.body,
     statusCode: validatedData.statusCode,
-    headers: Object.fromEntries(
-      validatedData.headers
-        .filter((h) => h.key.trim() !== '')
-        .map((h) => [h.key, h.value])
-    ),
+    headers: Object.fromEntries(validatedData.headers.filter((h) => h.key.trim() !== '').map((h) => [h.key, h.value]))
   };
 
   await client.hSet('page_data', validatedData.endpoint, JSON.stringify(stored));
 
   return new Response('Page data received', { status: 200 });
 }
-
 
 export async function PUT(request: NextRequest) {
   const client = await getClient();
@@ -84,7 +72,7 @@ export async function PUT(request: NextRequest) {
       {
         success: false,
         message: 'Validation failed',
-        errors: errors.fieldErrors,
+        errors: errors.fieldErrors
       },
       { status: 400 }
     );
@@ -96,11 +84,7 @@ export async function PUT(request: NextRequest) {
   const stored: StoredPageData = {
     body: validatedData.body,
     statusCode: validatedData.statusCode,
-    headers: Object.fromEntries(
-      validatedData.headers
-        .filter((h) => h.key.trim() !== '')
-        .map((h) => [h.key, h.value])
-    ),
+    headers: Object.fromEntries(validatedData.headers.filter((h) => h.key.trim() !== '').map((h) => [h.key, h.value]))
   };
 
   await client.hDel('page_data', validatedData.endpoint);

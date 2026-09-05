@@ -1,20 +1,21 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { AlertCircle, Info, X } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
-import { Header } from "@/components/header";
-import { SavedPagesList } from "@/components/saved-pages-list";
-import { EndpointField } from "@/components/creator/endpoint-field";
-import { StatusCodeField } from "@/components/creator/status-code-field";
-import { HeadersField } from "@/components/creator/headers-field";
-import { ContentField } from "@/components/creator/content-field";
-import { FormActions } from "@/components/creator/form-actions";
-import { ConfirmDialog } from "@/components/creator/confirm-dialog";
-import { usePageForm } from "@/hooks/usePageForm";
-import { logout } from "../login/actions";
+import { ConfirmDialog } from '@/components/creator/confirm-dialog';
+import { ContentField } from '@/components/creator/content-field';
+import { EndpointField } from '@/components/creator/endpoint-field';
+import { FormActions } from '@/components/creator/form-actions';
+import { HeadersField } from '@/components/creator/headers-field';
+import { StatusCodeField } from '@/components/creator/status-code-field';
+import { Header } from '@/components/header';
+import { SavedPagesList } from '@/components/saved-pages-list';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Form } from '@/components/ui/form';
+import { usePageForm } from '@/hooks/usePageForm';
+import { AlertCircle, Info, X } from 'lucide-react';
+import * as React from 'react';
+
+import { logout } from '../login/actions';
 
 export default function PageCreator() {
   const [refreshTrigger, setRefreshTrigger] = React.useState(0);
@@ -51,32 +52,28 @@ export default function PageCreator() {
     handleSubmit,
     onSubmitClick,
     handleEdit,
-    copyEndpoint,
+    copyEndpoint
   } = usePageForm(() => setRefreshTrigger((n) => n + 1));
 
   return (
-    <section aria-labelledby="page-creator-title">
-      <Header title="Page Creator" showModeToggle onLogout={logout} />
+    <section aria-labelledby='page-creator-title'>
+      <Header title='Page Creator' showModeToggle onLogout={logout} />
 
       {/* Error summary */}
       {hasErrors && (
-        <Alert variant="destructive" role="alert" aria-live="polite">
-          <AlertCircle className="size-4" aria-hidden="true" />
+        <Alert variant='destructive' role='alert' aria-live='polite'>
+          <AlertCircle className='size-4' aria-hidden='true' />
           <AlertDescription>
-            <span className="font-medium">
-              Fix the following errors before continuing:
-            </span>
-            <ul className="mt-2 list-inside list-disc space-y-1">
+            <span className='font-medium'>Fix the following errors before continuing:</span>
+            <ul className='mt-2 list-inside list-disc space-y-1'>
               {Object.entries(form.formState.errors).map(([field, error]) => (
                 <li key={field}>
-                  <span className="font-medium capitalize">{field}:</span>{" "}
-                  {error?.message as string}
+                  <span className='font-medium capitalize'>{field}:</span> {error?.message as string}
                 </li>
               ))}
-              {!hasContent && inputMethod === "code" && (
+              {!hasContent && inputMethod === 'code' && (
                 <li>
-                  <span className="font-medium">Content:</span> Enter the page
-                  code
+                  <span className='font-medium'>Content:</span> Enter the page code
                 </li>
               )}
             </ul>
@@ -84,28 +81,22 @@ export default function PageCreator() {
         </Alert>
       )}
 
-      <div className="p-8 space-y-8">
+      <div className='p-8 space-y-8'>
         <Form {...form}>
-          <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+          <form className='space-y-6' onSubmit={(e) => e.preventDefault()}>
             {/* Edit mode banner */}
             {isEditMode && (
-              <Alert className="border-blue-500 bg-blue-500/10">
-                <Info className="size-4 text-blue-500" aria-hidden="true" />
-                <AlertDescription className="flex items-center justify-between">
+              <Alert className='border-blue-500 bg-blue-500/10'>
+                <Info className='size-4 text-blue-500' aria-hidden='true' />
+                <AlertDescription className='flex items-center justify-between'>
                   <span>
-                    Editing page:{" "}
-                    <code className="font-mono text-foreground bg-secondary px-1.5 py-0.5 rounded">
+                    Editing page:{' '}
+                    <code className='font-mono text-foreground bg-secondary px-1.5 py-0.5 rounded'>
                       /{originalEndpoint}
                     </code>
                   </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleClear}
-                    className="gap-2 h-auto py-1"
-                  >
-                    <X className="size-4" aria-hidden="true" />
+                  <Button type='button' variant='ghost' size='sm' onClick={handleClear} className='gap-2 h-auto py-1'>
+                    <X className='size-4' aria-hidden='true' />
                     Cancel Edit
                   </Button>
                 </AlertDescription>
@@ -119,18 +110,9 @@ export default function PageCreator() {
               onCopy={copyEndpoint}
             />
 
-            <StatusCodeField
-              form={form}
-              statusCodeNum={statusCodeNum}
-              isValidStatusCode={isValidStatusCode}
-            />
+            <StatusCodeField form={form} statusCodeNum={statusCodeNum} isValidStatusCode={isValidStatusCode} />
 
-            <HeadersField
-              form={form}
-              headerFields={headerFields}
-              onAppend={appendHeader}
-              onRemove={removeHeader}
-            />
+            <HeadersField form={form} headerFields={headerFields} onAppend={appendHeader} onRemove={removeHeader} />
 
             <ContentField
               form={form}
@@ -139,7 +121,7 @@ export default function PageCreator() {
               uploadedFile={uploadedFile}
               onUploadedFileClear={() => {
                 setUploadedFile(null);
-                form.setValue("body", "", { shouldValidate: true });
+                form.setValue('body', '', { shouldValidate: true });
               }}
               isDragOver={isDragOver}
               onDrop={handleDrop}
@@ -163,7 +145,7 @@ export default function PageCreator() {
         </Form>
 
         {/* Saved pages list */}
-        <div className="pt-8 border-t border-border">
+        <div className='pt-8 border-t border-border'>
           <SavedPagesList refreshTrigger={refreshTrigger} onEdit={handleEdit} />
         </div>
       </div>
@@ -176,7 +158,7 @@ export default function PageCreator() {
         endpoint={endpoint}
         statusCodeNum={statusCodeNum}
         headerFields={headerFields}
-        headers={form.getValues("headers")}
+        headers={form.getValues('headers')}
         inputMethod={inputMethod}
         uploadedFileName={uploadedFile?.name}
         bodyLength={body?.length ?? 0}

@@ -1,18 +1,19 @@
-"use client";
+'use client';
 
-import React from "react";
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { motion } from 'framer-motion';
+import { ChevronDown, LogOut } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React from 'react';
 
-import { Button } from "@/components/ui/button";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { ChevronDown, LogOut } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "./ui/dropdown-menu";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger
+} from './ui/dropdown-menu';
 
 interface HeaderProps {
   title?: string;
@@ -25,13 +26,13 @@ interface HeaderProps {
 }
 
 export function Header({
-  title = "Dashboard",
+  title = 'Dashboard',
   leftContent,
   centerContent,
   rightContent,
   showCreatorButton = true,
   showModeToggle = true,
-  onLogout,
+  onLogout
 }: HeaderProps) {
   const router = useRouter();
 
@@ -46,48 +47,35 @@ export function Header({
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border"
-    >
-      <div className="flex items-center gap-4 px-6 py-4">
+      className='sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border'>
+      <div className='flex items-center gap-4 px-6 py-4'>
         {/* Left section - Title + optional content */}
-        <div className="flex items-center gap-4 shrink-0">
-          <h1 className="text-xl font-bold">{title}</h1>
+        <div className='flex items-center gap-4 shrink-0'>
+          <h1 className='text-xl font-bold'>{title}</h1>
           {leftContent}
         </div>
 
         {/* Center section - Flexible space for search, filters, etc. */}
-        {centerContent && (
-          <div className="flex-1 flex items-center justify-center min-w-0">
-            {centerContent}
-          </div>
-        )}
+        {centerContent && <div className='flex-1 flex items-center justify-center min-w-0'>{centerContent}</div>}
 
         {/* Spacer when no center content */}
-        {!centerContent && <div className="flex-1" />}
+        {!centerContent && <div className='flex-1' />}
 
         {/* Right section - Custom content + fixed buttons */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className='flex items-center gap-3 shrink-0'>
           {rightContent}
 
           {showCreatorButton && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  aria-label="Open page selector"
-                >
-                  <ChevronDown className="size-4" />
+                <Button size='icon' variant='outline' aria-label='Open page selector'>
+                  <ChevronDown className='size-4' />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align='end'>
                 <DropdownMenuLabel>Navigate to</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => router.push("/")}>
-                  Dashboard
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push("/creator")}>
-                  Creator
-                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/')}>Dashboard</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/creator')}>Creator</DropdownMenuItem>
                 {/*<DropdownMenuItem onClick={() => router.push("/settings")}>
                   Settings
                 </DropdownMenuItem>*/}
@@ -99,13 +87,8 @@ export function Header({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={handleLogout}
-                    aria-label="Logout"
-                  >
-                    <LogOut className="size-4" />
+                  <Button size='icon' variant='outline' onClick={handleLogout} aria-label='Logout'>
+                    <LogOut className='size-4' />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>

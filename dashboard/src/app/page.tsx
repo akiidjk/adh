@@ -106,9 +106,7 @@ export default function Home() {
 
   return (
     <>
-      {showLoadingLayer && (
-        <LoadingOverlay loading={loading} isConnected={isConnected} />
-      )}
+      {showLoadingLayer && <LoadingOverlay loading={loading} isConnected={isConnected} />}
 
       <DashboardHeader
         totalCount={displayMessages.length}
@@ -119,12 +117,7 @@ export default function Home() {
 
       <ResizablePanelGroup direction='horizontal'>
         <ResizablePanel defaultSize={25} minSize={25}>
-          <ListRequests
-            messages={displayMessages}
-            loading={loading}
-            onDelete={handleDelete}
-            onSelect={handleSelect}
-          />
+          <ListRequests messages={displayMessages} loading={loading} onDelete={handleDelete} onSelect={handleSelect} />
         </ResizablePanel>
 
         <ResizableHandle withHandle />
@@ -132,16 +125,11 @@ export default function Home() {
         <ResizablePanel
           defaultSize={75}
           minSize={25}
-          className='dark:bg-gray-700 bg-gray-300 m-4 opacity-90 rounded-lg h-full w-7/12 mt-3 p-4'
-        >
+          className='dark:bg-gray-700 bg-gray-300 m-4 opacity-90 rounded-lg h-full w-7/12 mt-3 p-4'>
           {selectedMessage ? (
             <Details message={selectedMessage} />
           ) : (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className='text-center py-8 text-gray-500'
-            >
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className='text-center py-8 text-gray-500'>
               Select a request to view details
             </motion.p>
           )}
