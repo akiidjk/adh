@@ -9,7 +9,7 @@ webhook/bin
 
 # dependencies
 dashboard/node_modules
-adh-dashboard/logs
+logs
 .pnp
 .pnp.*
 .yarn/*
