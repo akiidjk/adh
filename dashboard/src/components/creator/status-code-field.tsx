@@ -1,5 +1,9 @@
 'use client';
 
+import { Hash, Info } from 'lucide-react';
+import * as React from 'react';
+import type { UseFormReturn } from 'react-hook-form';
+
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -10,9 +14,6 @@ import {
   getStatusCodeColor,
   getStatusCodeLabel
 } from '@/lib/status-code';
-import { Hash, Info } from 'lucide-react';
-import * as React from 'react';
-import type { UseFormReturn } from 'react-hook-form';
 
 interface StatusCodeFieldProps {
   form: UseFormReturn<PageData>;
@@ -34,8 +35,9 @@ export function StatusCodeField({ form, statusCodeNum, isValidStatusCode }: Stat
                 <TooltipTrigger asChild>
                   <button
                     type='button'
-                    className='text-muted-foreground hover:text-foreground transition-colors'
-                    aria-label='Status code information'>
+                    className='text-muted-foreground transition-colors hover:text-foreground'
+                    aria-label='Status code information'
+                  >
                     <Info className='size-4' aria-hidden='true' />
                   </button>
                 </TooltipTrigger>
@@ -72,12 +74,13 @@ export function StatusCodeField({ form, statusCodeNum, isValidStatusCode }: Stat
                         shouldValidate: true
                       })
                     }
-                    className={`inline-flex items-center gap-1 text-xs font-mono px-2 py-1 rounded border transition-all ${
+                    className={`inline-flex items-center gap-1 rounded border px-2 py-1 font-mono text-xs transition-all ${
                       isSelected
                         ? `${getStatusCodeBadgeClass(code)} ring-1 ring-offset-1 ring-offset-background ${ringColor}`
-                        : 'bg-secondary/50 text-muted-foreground border-border hover:bg-secondary hover:text-foreground'
+                        : 'border-border bg-secondary/50 text-muted-foreground hover:bg-secondary hover:text-foreground'
                     }`}
-                    aria-pressed={isSelected}>
+                    aria-pressed={isSelected}
+                  >
                     {label}
                   </button>
                 );
@@ -86,7 +89,7 @@ export function StatusCodeField({ form, statusCodeNum, isValidStatusCode }: Stat
 
             {/* Custom numeric input */}
             <div className='relative'>
-              <Hash className='absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none' />
+              <Hash className='pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground' />
               <FormControl>
                 <Input
                   {...field}
@@ -99,7 +102,7 @@ export function StatusCodeField({ form, statusCodeNum, isValidStatusCode }: Stat
                     field.onChange(isNaN(val) ? 200 : val);
                   }}
                   value={field.value ?? 200}
-                  className={`bg-input border-border placeholder:text-muted-foreground pl-9 pr-20 font-mono w-48 ${
+                  className={`w-48 border-border bg-input pr-20 pl-9 font-mono placeholder:text-muted-foreground ${
                     isValidStatusCode ? getStatusCodeColor(statusCodeNum) : 'text-destructive'
                   }`}
                   aria-describedby='status-code-description'
@@ -107,7 +110,8 @@ export function StatusCodeField({ form, statusCodeNum, isValidStatusCode }: Stat
               </FormControl>
               {isValidStatusCode && (
                 <span
-                  className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium ${getStatusCodeColor(statusCodeNum)}`}>
+                  className={`absolute top-1/2 right-3 -translate-y-1/2 text-xs font-medium ${getStatusCodeColor(statusCodeNum)}`}
+                >
                   {getStatusCodeLabel(statusCodeNum)}
                 </span>
               )}

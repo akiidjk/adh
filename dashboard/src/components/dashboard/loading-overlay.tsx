@@ -1,7 +1,8 @@
 'use client';
 
-import { Spinner } from '@/components/ui/spinner';
 import { motion } from 'framer-motion';
+
+import { Spinner } from '@/components/ui/spinner';
 
 interface LoadingOverlayProps {
   loading: boolean;
@@ -17,8 +18,9 @@ export function LoadingOverlay({ loading, isConnected }: LoadingOverlayProps) {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.2 }}
-        className='flex flex-col items-center gap-4'>
-        <Spinner className='w-12 h-12 text-primary' />
+        className='flex flex-col items-center gap-4'
+      >
+        <Spinner className='h-12 w-12 text-primary' />
         <p className='text-lg font-semibold text-foreground'>{message}</p>
       </motion.div>
     </div>

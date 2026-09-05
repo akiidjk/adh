@@ -1,7 +1,8 @@
-import { getSecretKey } from '@/config';
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 import 'server-only';
+
+import { getSecretKey } from '@/config';
 
 const secretKey = await getSecretKey();
 const encodedKey = new TextEncoder().encode(secretKey);

@@ -1,12 +1,13 @@
 'use client';
 
+import { Check, Code2, Copy, Eye } from 'lucide-react';
+import * as React from 'react';
+import { toast } from 'sonner';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Check, Code2, Copy, Eye } from 'lucide-react';
-import * as React from 'react';
-import { toast } from 'sonner';
 
 interface PagePreviewDialogProps {
   open: boolean;
@@ -31,7 +32,7 @@ export function PagePreviewDialog({ open, onOpenChange, endpoint, code }: PagePr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-4xl max-h-[85vh] flex flex-col'>
+      <DialogContent className='flex max-h-[85vh] max-w-4xl flex-col'>
         <DialogHeader>
           <div className='flex items-center justify-between pr-8'>
             <div>
@@ -51,7 +52,8 @@ export function PagePreviewDialog({ open, onOpenChange, endpoint, code }: PagePr
         <Tabs
           value={activeTab}
           onValueChange={(v) => setActiveTab(v as 'preview' | 'code')}
-          className='flex-1 flex flex-col min-h-0'>
+          className='flex min-h-0 flex-1 flex-col'
+        >
           <div className='flex items-center justify-between'>
             <TabsList className='grid w-fit grid-cols-2'>
               <TabsTrigger value='preview' className='gap-2'>
@@ -81,8 +83,8 @@ export function PagePreviewDialog({ open, onOpenChange, endpoint, code }: PagePr
             )}
           </div>
 
-          <TabsContent value='preview' className='flex-1 mt-4 min-h-0 overflow-auto'>
-            <div className='rounded-lg border border-border bg-card min-h-100 p-4'>
+          <TabsContent value='preview' className='mt-4 min-h-0 flex-1 overflow-auto'>
+            <div className='min-h-100 rounded-lg border border-border bg-card p-4'>
               <iframe
                 srcDoc={`
                   <!DOCTYPE html>
@@ -108,28 +110,28 @@ export function PagePreviewDialog({ open, onOpenChange, endpoint, code }: PagePr
                     <body>${code}</body>
                   </html>
                 `}
-                className='w-full h-100 rounded-lg bg-background'
+                className='h-100 w-full rounded-lg bg-background'
                 title={`Preview of /${endpoint}`}
                 sandbox='allow-scripts'
               />
             </div>
           </TabsContent>
 
-          <TabsContent value='code' className='flex-1 mt-4 min-h-0 overflow-auto'>
-            <div className='rounded-lg border border-border bg-input overflow-hidden'>
-              <div className='flex items-center justify-between px-4 py-2 border-b border-border bg-secondary/50'>
-                <span className='text-xs text-muted-foreground font-mono'>source.tsx</span>
+          <TabsContent value='code' className='mt-4 min-h-0 flex-1 overflow-auto'>
+            <div className='overflow-hidden rounded-lg border border-border bg-input'>
+              <div className='flex items-center justify-between border-b border-border bg-secondary/50 px-4 py-2'>
+                <span className='font-mono text-xs text-muted-foreground'>source.tsx</span>
                 <span className='text-xs text-muted-foreground'>{charCount} characters</span>
               </div>
               <div className='relative max-h-100 overflow-auto'>
-                <div className='absolute left-0 top-0 w-12 h-full bg-secondary/30 border-r border-border'>
-                  <div className='p-4 font-mono text-xs text-muted-foreground text-right'>
+                <div className='absolute top-0 left-0 h-full w-12 border-r border-border bg-secondary/30'>
+                  <div className='p-4 text-right font-mono text-xs text-muted-foreground'>
                     {code.split('\n').map((_, i) => (
                       <div key={i}>{i + 1}</div>
                     ))}
                   </div>
                 </div>
-                <pre className='p-4 pl-16 font-mono text-sm text-foreground whitespace-pre-wrap wrap-break-words'>
+                <pre className='wrap-break-words p-4 pl-16 font-mono text-sm whitespace-pre-wrap text-foreground'>
                   <code>{code}</code>
                 </pre>
               </div>

@@ -1,5 +1,8 @@
 'use client';
 
+import { AlertCircle, Info, X } from 'lucide-react';
+import * as React from 'react';
+
 import { ConfirmDialog } from '@/components/creator/confirm-dialog';
 import { ContentField } from '@/components/creator/content-field';
 import { EndpointField } from '@/components/creator/endpoint-field';
@@ -12,8 +15,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { usePageForm } from '@/hooks/usePageForm';
-import { AlertCircle, Info, X } from 'lucide-react';
-import * as React from 'react';
 
 import { logout } from '../login/actions';
 
@@ -81,7 +82,7 @@ export default function PageCreator() {
         </Alert>
       )}
 
-      <div className='p-8 space-y-8'>
+      <div className='space-y-8 p-8'>
         <Form {...form}>
           <form className='space-y-6' onSubmit={(e) => e.preventDefault()}>
             {/* Edit mode banner */}
@@ -91,11 +92,11 @@ export default function PageCreator() {
                 <AlertDescription className='flex items-center justify-between'>
                   <span>
                     Editing page:{' '}
-                    <code className='font-mono text-foreground bg-secondary px-1.5 py-0.5 rounded'>
+                    <code className='rounded bg-secondary px-1.5 py-0.5 font-mono text-foreground'>
                       /{originalEndpoint}
                     </code>
                   </span>
-                  <Button type='button' variant='ghost' size='sm' onClick={handleClear} className='gap-2 h-auto py-1'>
+                  <Button type='button' variant='ghost' size='sm' onClick={handleClear} className='h-auto gap-2 py-1'>
                     <X className='size-4' aria-hidden='true' />
                     Cancel Edit
                   </Button>
@@ -145,7 +146,7 @@ export default function PageCreator() {
         </Form>
 
         {/* Saved pages list */}
-        <div className='pt-8 border-t border-border'>
+        <div className='border-t border-border pt-8'>
           <SavedPagesList refreshTrigger={refreshTrigger} onEdit={handleEdit} />
         </div>
       </div>

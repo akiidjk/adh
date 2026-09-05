@@ -1,5 +1,6 @@
-import { RequestMessage } from '@/lib/models';
 import { useCallback, useEffect, useState } from 'react';
+
+import { RequestMessage } from '@/lib/models';
 
 export function useRequestsHistory() {
   const [messages, setMessages] = useState<RequestMessage[]>([]);

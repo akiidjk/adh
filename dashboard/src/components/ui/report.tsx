@@ -1,9 +1,10 @@
+import Image from 'next/image';
+
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Report } from '@/lib/models';
-import Image from 'next/image';
 
 export function ReportDetails({ report }: { report: Report }) {
   return (
@@ -19,14 +20,14 @@ export function ReportDetails({ report }: { report: Report }) {
           </CardTitle>
         </CardHeader>
         <Separator />
-        <CardContent className='pt-4 grid gap-4'>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+        <CardContent className='grid gap-4 pt-4'>
+          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
             <div className='space-y-2'>
               <h3 className='font-medium'>Page Information</h3>
               <div className='text-sm'>
                 <p className='flex gap-2'>
                   <span className='text-muted-foreground'>URI:</span>
-                  <span className='font-mono truncate'>{report.uri || 'N/A'}</span>
+                  <span className='truncate font-mono'>{report.uri || 'N/A'}</span>
                 </p>
                 <p className='flex gap-2'>
                   <span className='text-muted-foreground'>Referrer:</span>
@@ -51,7 +52,7 @@ export function ReportDetails({ report }: { report: Report }) {
                   <span className='truncate'>{report.gpu || 'N/A'}</span>
                 </p>
                 <p className='flex gap-2'>
-                  <span className='text-muted-foreground min-w-20'>User Agent:</span>
+                  <span className='min-w-20 text-muted-foreground'>User Agent:</span>
                   <span className='truncate'>{report.user_agent || 'N/A'}</span>
                 </p>
               </div>
@@ -68,16 +69,16 @@ export function ReportDetails({ report }: { report: Report }) {
           </CardHeader>
           <Separator />
           <CardContent className='pt-4'>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+            <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
               {report.localstorage && Object.keys(report.localstorage).length > 0 && (
                 <div>
-                  <h4 className='font-medium mb-2'>Local Storage</h4>
+                  <h4 className='mb-2 font-medium'>Local Storage</h4>
                   <Table>
                     <TableBody>
                       {Object.entries(report.localstorage).map(([key, value]) => (
                         <TableRow key={`local-${key}`}>
-                          <TableCell className='font-medium py-2 w-[150px]'>{key}</TableCell>
-                          <TableCell className='font-mono text-xs py-2 break-all'>{value}</TableCell>
+                          <TableCell className='w-[150px] py-2 font-medium'>{key}</TableCell>
+                          <TableCell className='py-2 font-mono text-xs break-all'>{value}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -87,13 +88,13 @@ export function ReportDetails({ report }: { report: Report }) {
 
               {report.sessionstorage && Object.keys(report.sessionstorage).length > 0 && (
                 <div>
-                  <h4 className='font-medium mb-2'>Session Storage</h4>
+                  <h4 className='mb-2 font-medium'>Session Storage</h4>
                   <Table>
                     <TableBody>
                       {Object.entries(report.sessionstorage).map(([key, value]) => (
                         <TableRow key={`session-${key}`}>
-                          <TableCell className='font-medium py-2 w-[150px]'>{key}</TableCell>
-                          <TableCell className='font-mono text-xs py-2 break-all'>{value}</TableCell>
+                          <TableCell className='w-[150px] py-2 font-medium'>{key}</TableCell>
+                          <TableCell className='py-2 font-mono text-xs break-all'>{value}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -113,7 +114,7 @@ export function ReportDetails({ report }: { report: Report }) {
           </CardHeader>
           <Separator />
           <CardContent className='pt-4'>
-            <pre className='font-mono text-sm bg-muted rounded p-3 overflow-x-auto'>
+            <pre className='overflow-x-auto rounded bg-muted p-3 font-mono text-sm'>
               {report.cookies || 'No cookies found'}
             </pre>
           </CardContent>
@@ -129,7 +130,7 @@ export function ReportDetails({ report }: { report: Report }) {
           <Separator />
           <CardContent className='pt-4'>
             <div className='relative'>
-              <pre className='font-mono text-xs bg-muted rounded p-3 overflow-x-auto max-h-60'>{report.dom}</pre>
+              <pre className='max-h-60 overflow-x-auto rounded bg-muted p-3 font-mono text-xs'>{report.dom}</pre>
               <Badge variant='outline' className='absolute top-2 right-2'>
                 {report.dom.length} chars
               </Badge>
@@ -145,11 +146,11 @@ export function ReportDetails({ report }: { report: Report }) {
             <CardTitle>Screenshot</CardTitle>
           </CardHeader>
           <Separator />
-          <CardContent className='pt-4 flex justify-center'>
+          <CardContent className='flex justify-center pt-4'>
             <Image
               src={`data:image/png;base64,${report.screenshot}`}
               alt='Page screenshot'
-              className='rounded border shadow-sm max-h-96'
+              className='max-h-96 rounded border shadow-sm'
             />
           </CardContent>
         </Card>

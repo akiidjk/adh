@@ -1,16 +1,17 @@
+import { format } from 'date-fns';
+
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { RequestMessage } from '@/lib/models';
-import { format } from 'date-fns';
 
 export function PrettyRequest({ data: msg }: { data: RequestMessage }) {
   return (
     <div className='space-y-4'>
       <Card>
         <CardHeader className='pb-2'>
-          <div className='flex justify-between items-start'>
+          <div className='flex items-start justify-between'>
             <div>
               <CardTitle>Request Details</CardTitle>
               <CardDescription>{format(new Date(msg.timestamp), 'PPPpp')}</CardDescription>
@@ -20,47 +21,48 @@ export function PrettyRequest({ data: msg }: { data: RequestMessage }) {
               <Badge
                 className={
                   msg.method === 'GET'
-                    ? 'bg-green-500 hover:bg-green-600 text-white'
+                    ? 'bg-green-500 text-white hover:bg-green-600'
                     : msg.method === 'POST'
-                      ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                      ? 'bg-blue-500 text-white hover:bg-blue-600'
                       : msg.method === 'DELETE'
-                        ? 'bg-red-500 hover:bg-red-600 text-white'
+                        ? 'bg-red-500 text-white hover:bg-red-600'
                         : msg.method === 'PUT'
-                          ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
-                          : 'bg-gray-500 hover:bg-gray-600 text-white'
-                }>
+                          ? 'bg-yellow-500 text-white hover:bg-yellow-600'
+                          : 'bg-gray-500 text-white hover:bg-gray-600'
+                }
+              >
                 {msg.method}
               </Badge>
             </div>
           </div>
         </CardHeader>
         <Separator />
-        <CardContent className='pt-4 grid gap-4'>
+        <CardContent className='grid gap-4 pt-4'>
           <div className='grid grid-cols-2 gap-4'>
             <div>
-              <h3 className='font-medium mb-1'>Client</h3>
+              <h3 className='mb-1 font-medium'>Client</h3>
               <p className='text-sm'>
                 {msg.address}:{msg.port}
               </p>
             </div>
             <div>
-              <h3 className='font-medium mb-1'>User Agent</h3>
-              <p className='text-sm line-clamp-1'>{msg.useragent}</p>
+              <h3 className='mb-1 font-medium'>User Agent</h3>
+              <p className='line-clamp-1 text-sm'>{msg.useragent}</p>
             </div>
           </div>
           <div className='grid grid-cols-2 gap-4'>
             <div className='w-auto truncate'>
-              <h3 className='font-medium mb-2'>Path</h3>
-              <p className='text-sm font-mono bg-muted rounded px-2 py-1 truncate'>{msg.path}</p>
+              <h3 className='mb-2 font-medium'>Path</h3>
+              <p className='truncate rounded bg-muted px-2 py-1 font-mono text-sm'>{msg.path}</p>
             </div>
             <div>
-              <h3 className='font-medium mb-2'>Form Data</h3>
+              <h3 className='mb-2 font-medium'>Form Data</h3>
               {Object.keys(msg.form).length > 0 ? (
-                <div className='space-y-2 flex gap-2'>
+                <div className='flex gap-2 space-y-2'>
                   {Object.entries(msg.form).map(([key, value]) => (
                     <div key={key} className='flex items-baseline gap-2 text-sm'>
                       <span className='text-md font-bold text-muted-foreground'>{key}:</span>
-                      <span className='font-mono bg-muted rounded px-2 py-1 text-xs break-all'>
+                      <span className='rounded bg-muted px-2 py-1 font-mono text-xs break-all'>
                         {typeof value === 'object' ? JSON.stringify(value) : value}
                       </span>
                     </div>

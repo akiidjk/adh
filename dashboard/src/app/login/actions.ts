@@ -1,9 +1,10 @@
 'use server';
 
-import { getUserId, getUserName, getUserPassword } from '@/config';
-import { createSession, deleteSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
+
+import { getUserId, getUserName, getUserPassword } from '@/config';
+import { createSession, deleteSession } from '@/lib/session';
 
 const user = {
   id: await getUserId(),

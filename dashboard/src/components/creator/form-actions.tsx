@@ -1,5 +1,8 @@
 'use client';
 
+import { Loader2, Send, Trash2 } from 'lucide-react';
+import * as React from 'react';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,8 +16,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Loader2, Send, Trash2 } from 'lucide-react';
-import * as React from 'react';
 
 interface FormActionsProps {
   isLoading: boolean;
@@ -54,8 +55,9 @@ export function FormActions({
           <Button
             type='button'
             variant='outline'
-            className='gap-2 border-border text-muted-foreground hover:text-foreground bg-transparent'
-            disabled={!hasAnything}>
+            className='gap-2 border-border bg-transparent text-muted-foreground hover:text-foreground'
+            disabled={!hasAnything}
+          >
             <Trash2 className='size-4' aria-hidden='true' />
             Reset
           </Button>
@@ -71,7 +73,8 @@ export function FormActions({
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={onReset}
-              className='bg-destructive text-destructive-foreground hover:bg-destructive/90'>
+              className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
+            >
               Confirm Reset
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -88,7 +91,8 @@ export function FormActions({
                 type='button'
                 className='w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90'
                 disabled={!canSubmit}
-                onClick={onSubmit}>
+                onClick={onSubmit}
+              >
                 {isLoading ? (
                   <>
                     <Loader2 className='size-4 animate-spin' aria-hidden='true' />

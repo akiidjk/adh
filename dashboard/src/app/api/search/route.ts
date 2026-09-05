@@ -1,5 +1,6 @@
-import { getClient } from '@/lib/redis';
 import { NextResponse } from 'next/server';
+
+import { getClient } from '@/lib/redis';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

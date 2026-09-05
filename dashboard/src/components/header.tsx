@@ -1,11 +1,13 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { motion } from 'framer-motion';
 import { ChevronDown, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+
+import { Button } from '@/components/ui/button';
+import { ModeToggle } from '@/components/ui/mode-toggle';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 import {
   DropdownMenu,
@@ -47,23 +49,25 @@ export function Header({
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className='sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border'>
+      className='sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'
+    >
       <div className='flex items-center gap-4 px-6 py-4'>
         {/* Left section - Title + optional content */}
-        <div className='flex items-center gap-4 shrink-0'>
+        <div className='flex shrink-0 items-center gap-4'>
           <h1 className='text-xl font-bold'>{title}</h1>
           {leftContent}
         </div>
 
         {/* Center section - Flexible space for search, filters, etc. */}
-        {centerContent && <div className='flex-1 flex items-center justify-center min-w-0'>{centerContent}</div>}
+        {centerContent && <div className='flex min-w-0 flex-1 items-center justify-center'>{centerContent}</div>}
 
         {/* Spacer when no center content */}
         {!centerContent && <div className='flex-1' />}
 
         {/* Right section - Custom content + fixed buttons */}
-        <div className='flex items-center gap-3 shrink-0'>
+        <div className='flex shrink-0 items-center gap-3'>
           {rightContent}
+          {showModeToggle && <ModeToggle />}
 
           {showCreatorButton && (
             <DropdownMenu>

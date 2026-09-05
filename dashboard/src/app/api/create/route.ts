@@ -1,8 +1,9 @@
 'use server';
 
+import { NextRequest, NextResponse } from 'next/server';
+
 import { PageData, StoredPageData, pageSchema } from '@/lib/models';
 import { getClient } from '@/lib/redis';
-import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET() {
   const client = await getClient();

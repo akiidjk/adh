@@ -1,13 +1,14 @@
 'use client';
 
+import { Info, Plus, Tags, X } from 'lucide-react';
+import type { FieldArrayWithId, UseFormReturn } from 'react-hook-form';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { PageData } from '@/lib/models';
-import { Info, Plus, Tags, X } from 'lucide-react';
-import type { FieldArrayWithId, UseFormReturn } from 'react-hook-form';
 
 interface HeadersFieldProps {
   form: UseFormReturn<PageData>;
@@ -28,8 +29,9 @@ export function HeadersField({ form, headerFields, onAppend, onRemove }: Headers
               <TooltipTrigger asChild>
                 <button
                   type='button'
-                  className='text-muted-foreground hover:text-foreground transition-colors'
-                  aria-label='Headers information'>
+                  className='text-muted-foreground transition-colors hover:text-foreground'
+                  aria-label='Headers information'
+                >
                   <Info className='size-4' aria-hidden='true' />
                 </button>
               </TooltipTrigger>
@@ -55,7 +57,7 @@ export function HeadersField({ form, headerFields, onAppend, onRemove }: Headers
 
           {headerFields.length > 0 && (
             <Badge variant='secondary' className='text-xs tabular-nums'>
-              <Tags className='size-3 mr-1' aria-hidden='true' />
+              <Tags className='mr-1 size-3' aria-hidden='true' />
               {headerFields.length}
             </Badge>
           )}
@@ -66,7 +68,8 @@ export function HeadersField({ form, headerFields, onAppend, onRemove }: Headers
           variant='outline'
           size='sm'
           onClick={() => onAppend({ key: '', value: '' })}
-          className='gap-1.5 text-xs h-7 border-border text-muted-foreground hover:text-foreground bg-transparent'>
+          className='h-7 gap-1.5 border-border bg-transparent text-xs text-muted-foreground hover:text-foreground'
+        >
           <Plus className='size-3' aria-hidden='true' />
           Add Header
         </Button>
@@ -74,14 +77,15 @@ export function HeadersField({ form, headerFields, onAppend, onRemove }: Headers
 
       {headerFields.length === 0 ? (
         <div
-          className='flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-input/50 py-6 text-muted-foreground cursor-pointer hover:bg-secondary/30 transition-colors'
+          className='flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-input/50 py-6 text-muted-foreground transition-colors hover:bg-secondary/30'
           onClick={() => onAppend({ key: '', value: '' })}
           role='button'
           tabIndex={0}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') onAppend({ key: '', value: '' });
           }}
-          aria-label='Add a response header'>
+          aria-label='Add a response header'
+        >
           <Tags className='size-6 opacity-40' aria-hidden='true' />
           <p className='text-sm'>No custom headers</p>
           <p className='text-xs opacity-70'>Click to add a response header</p>
@@ -90,13 +94,13 @@ export function HeadersField({ form, headerFields, onAppend, onRemove }: Headers
         <div className='space-y-2'>
           {/* Column labels */}
           <div className='grid grid-cols-[1fr_1fr_auto] gap-2 px-1'>
-            <span className='text-xs text-muted-foreground font-medium'>Header Name</span>
-            <span className='text-xs text-muted-foreground font-medium'>Value</span>
+            <span className='text-xs font-medium text-muted-foreground'>Header Name</span>
+            <span className='text-xs font-medium text-muted-foreground'>Value</span>
             <span className='w-8' />
           </div>
 
           {headerFields.map((headerField, index) => (
-            <div key={headerField.id} className='grid grid-cols-[1fr_1fr_auto] gap-2 items-start'>
+            <div key={headerField.id} className='grid grid-cols-[1fr_1fr_auto] items-start gap-2'>
               <FormField
                 control={form.control}
                 name={`headers.${index}.key`}
@@ -106,11 +110,11 @@ export function HeadersField({ form, headerFields, onAppend, onRemove }: Headers
                       <Input
                         {...field}
                         placeholder='Content-Type'
-                        className='bg-input border-border text-foreground placeholder:text-muted-foreground font-mono text-sm h-9'
+                        className='h-9 border-border bg-input font-mono text-sm text-foreground placeholder:text-muted-foreground'
                         aria-label={`Header ${index + 1} name`}
                       />
                     </FormControl>
-                    <FormMessage className='text-xs mt-1' />
+                    <FormMessage className='mt-1 text-xs' />
                   </FormItem>
                 )}
               />
@@ -124,11 +128,11 @@ export function HeadersField({ form, headerFields, onAppend, onRemove }: Headers
                       <Input
                         {...field}
                         placeholder='text/html; charset=utf-8'
-                        className='bg-input border-border text-foreground placeholder:text-muted-foreground font-mono text-sm h-9'
+                        className='h-9 border-border bg-input font-mono text-sm text-foreground placeholder:text-muted-foreground'
                         aria-label={`Header ${index + 1} value`}
                       />
                     </FormControl>
-                    <FormMessage className='text-xs mt-1' />
+                    <FormMessage className='mt-1 text-xs' />
                   </FormItem>
                 )}
               />
@@ -140,9 +144,10 @@ export function HeadersField({ form, headerFields, onAppend, onRemove }: Headers
                       type='button'
                       variant='ghost'
                       size='icon'
-                      className='size-9 text-muted-foreground hover:text-destructive shrink-0'
+                      className='size-9 shrink-0 text-muted-foreground hover:text-destructive'
                       onClick={() => onRemove(index)}
-                      aria-label={`Remove header ${index + 1}`}>
+                      aria-label={`Remove header ${index + 1}`}
+                    >
                       <X className='size-4' aria-hidden='true' />
                     </Button>
                   </TooltipTrigger>
@@ -157,7 +162,8 @@ export function HeadersField({ form, headerFields, onAppend, onRemove }: Headers
             variant='ghost'
             size='sm'
             onClick={() => onAppend({ key: '', value: '' })}
-            className='gap-1.5 text-xs text-muted-foreground hover:text-foreground w-full mt-1 border border-dashed border-border hover:border-muted-foreground h-8'>
+            className='mt-1 h-8 w-full gap-1.5 border border-dashed border-border text-xs text-muted-foreground hover:border-muted-foreground hover:text-foreground'
+          >
             <Plus className='size-3' aria-hidden='true' />
             Add another header
           </Button>

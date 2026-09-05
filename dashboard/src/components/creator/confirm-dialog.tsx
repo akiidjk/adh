@@ -1,5 +1,8 @@
 'use client';
 
+import * as React from 'react';
+import type { FieldArrayWithId } from 'react-hook-form';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,8 +15,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import type { PageData } from '@/lib/models';
 import { getStatusCodeColor } from '@/lib/status-code';
-import * as React from 'react';
-import type { FieldArrayWithId } from 'react-hook-form';
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -57,16 +58,16 @@ export function ConfirmDialog({
                   : "You're about to create a new page with the following details:"}
               </p>
 
-              <div className='rounded-lg bg-secondary p-3 space-y-2'>
+              <div className='space-y-2 rounded-lg bg-secondary p-3'>
                 {/* Endpoint */}
                 <div className='flex items-center gap-2'>
-                  <span className='text-muted-foreground text-sm shrink-0'>Endpoint:</span>
-                  <code className='rounded bg-input px-2 py-0.5 font-mono text-foreground text-sm'>{endpoint}</code>
+                  <span className='shrink-0 text-sm text-muted-foreground'>Endpoint:</span>
+                  <code className='rounded bg-input px-2 py-0.5 font-mono text-sm text-foreground'>{endpoint}</code>
                 </div>
 
                 {/* Status code */}
                 <div className='flex items-center gap-2'>
-                  <span className='text-muted-foreground text-sm shrink-0'>Status Code:</span>
+                  <span className='shrink-0 text-sm text-muted-foreground'>Status Code:</span>
                   <span className={`font-mono text-sm font-medium ${getStatusCodeColor(statusCodeNum)}`}>
                     {statusCodeNum}
                   </span>
@@ -75,7 +76,7 @@ export function ConfirmDialog({
                 {/* Headers */}
                 {headerFields.length > 0 && filledHeaders.length > 0 && (
                   <div className='flex items-start gap-2'>
-                    <span className='text-muted-foreground text-sm shrink-0'>Headers:</span>
+                    <span className='shrink-0 text-sm text-muted-foreground'>Headers:</span>
                     <div className='space-y-0.5'>
                       {filledHeaders.map((h, i) => (
                         <div key={i} className='font-mono text-xs'>
@@ -90,16 +91,16 @@ export function ConfirmDialog({
 
                 {/* Source */}
                 <div className='flex items-center gap-2'>
-                  <span className='text-muted-foreground text-sm shrink-0'>Source:</span>
-                  <span className='text-foreground text-sm'>
+                  <span className='shrink-0 text-sm text-muted-foreground'>Source:</span>
+                  <span className='text-sm text-foreground'>
                     {inputMethod === 'code' ? 'Code editor' : uploadedFileName}
                   </span>
                 </div>
 
                 {/* Size */}
                 <div className='flex items-center gap-2'>
-                  <span className='text-muted-foreground text-sm shrink-0'>Size:</span>
-                  <span className='text-foreground text-sm'>{bodyLength} characters</span>
+                  <span className='shrink-0 text-sm text-muted-foreground'>Size:</span>
+                  <span className='text-sm text-foreground'>{bodyLength} characters</span>
                 </div>
               </div>
             </div>

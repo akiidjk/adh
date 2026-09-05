@@ -1,14 +1,16 @@
 'use client';
 
-import { type PageData, type StoredPageData, pageSchema } from '@/lib/models';
-import { pagesService } from '@/services/pagesService';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import * as React from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import { type PageData, type StoredPageData, pageSchema } from '@/lib/models';
+import { pagesService } from '@/services/pagesService';
+
 type InputMethod = 'code' | 'upload';
+const ENDPOINT_PATTERN = /^[A-Za-z0-9_.\-\/]+$/;
 
 export function usePageForm(onSuccess?: () => void) {
   const [inputMethod, setInputMethod] = React.useState<InputMethod>('code');
@@ -39,23 +41,23 @@ export function usePageForm(onSuccess?: () => void) {
     name: 'headers'
   });
 
-  const endpoint = form.watch('endpoint');
-  const body = form.watch('body');
-  const statusCode = form.watch('statusCode');
+  const [endpoint, body, statusCode] = useWatch({
+    control: form.control,
+    name: ['endpoint', 'body', 'statusCode']
+  });
 
-  const endpointPattern = /^[A-Za-z0-9_.\-\/]+$/;
   const isValidEndpoint =
-    typeof endpoint === 'string' && endpoint.length > 1 && endpoint.length < 100 && endpointPattern.test(endpoint);
+    typeof endpoint === 'string' && endpoint.length > 1 && endpoint.length < 100 && ENDPOINT_PATTERN.test(endpoint);
 
   const getEndpointValidationErrors = React.useCallback((): string[] => {
     if (!endpoint || endpoint.length === 0) return [];
     const errors: string[] = [];
     if (endpoint.length <= 1) errors.push('Must be at least 2 characters');
     if (endpoint.length >= 100) errors.push('Must be less than 100 characters');
-    if (endpoint.length > 1 && !endpointPattern.test(endpoint))
+    if (endpoint.length > 1 && !ENDPOINT_PATTERN.test(endpoint))
       errors.push('May only contain letters, numbers, dashes (-), underscores (_) and slashes (/)');
     return errors;
-  }, [endpoint, endpointPattern]);
+  }, [endpoint]);
 
   const endpointErrors = getEndpointValidationErrors();
   const hasContent = (body?.trim().length ?? 0) > 0;

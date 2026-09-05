@@ -1,5 +1,9 @@
 'use client';
 
+import { motion } from 'framer-motion';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
+
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 import { LoadingOverlay } from '@/components/dashboard/loading-overlay';
 import Details from '@/components/ui/details';
@@ -10,9 +14,6 @@ import { useRequestsHistory } from '@/hooks/useRequestsHistory';
 import { useStreamData } from '@/hooks/useStreamData';
 import { RequestMessage } from '@/lib/models';
 import { requestService } from '@/services/requestService';
-import { motion } from 'framer-motion';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { toast } from 'sonner';
 
 export default function Home() {
   const { messages: historyMessages, loading, updateMessages } = useRequestsHistory();
@@ -69,38 +70,32 @@ export default function Home() {
     [historyMessages, streamMessages, updateMessages, updateStreamMessages, selectedKey, searchResults]
   );
 
-  const handleSearch = useCallback(async () => {
-    if (!debouncedQuery.trim()) {
-      setSearchResults([]);
-      return;
-    }
+  useEffect(() => {
+    if (!debouncedQuery.trim()) return;
 
-    const results = await requestService.searchRequests(debouncedQuery);
+    let active = true;
+    const search = async () => {
+      const results = await requestService.searchRequests(debouncedQuery);
+      if (!active) return;
 
-    if (results.success === false) {
-      setSearchResults([]);
-      console.error('Invalid search syntax');
-      return;
-    }
+      if (results.success === false) {
+        setSearchResults([]);
+        console.error('Invalid search syntax');
+      } else if (results.total === 0) {
+        setSearchResults([]);
+        toast.warning('No results found');
+      } else {
+        setSearchResults(results.results);
+      }
+    };
 
-    if (results.total === 0) {
-      setSearchResults([]);
-      toast.warning('No results found');
-      return;
-    }
-
-    setSearchResults(results.results);
+    void search();
+    return () => {
+      active = false;
+    };
   }, [debouncedQuery]);
 
-  useEffect(() => {
-    if (debouncedQuery.trim() === '') {
-      setSearchResults([]);
-      return;
-    }
-    handleSearch();
-  }, [debouncedQuery, handleSearch]);
-
-  const displayMessages = searchResults.length > 0 ? searchResults : messages;
+  const displayMessages = query.trim() && searchResults.length > 0 ? searchResults : messages;
   const selectedMessage = selectedKey !== null ? displayMessages.find((msg) => msg.key === selectedKey) : null;
   const showLoadingLayer = loading || !isConnected;
 
@@ -125,11 +120,12 @@ export default function Home() {
         <ResizablePanel
           defaultSize={75}
           minSize={25}
-          className='dark:bg-gray-700 bg-gray-300 m-4 opacity-90 rounded-lg h-full w-7/12 mt-3 p-4'>
+          className='m-4 mt-3 h-full w-7/12 rounded-lg bg-gray-300 p-4 opacity-90 dark:bg-gray-700'
+        >
           {selectedMessage ? (
             <Details message={selectedMessage} />
           ) : (
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className='text-center py-8 text-gray-500'>
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className='py-8 text-center text-gray-500'>
               Select a request to view details
             </motion.p>
           )}

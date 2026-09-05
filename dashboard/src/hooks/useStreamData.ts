@@ -1,6 +1,7 @@
 'use client';
-import { RequestMessage } from '@/lib/models';
 import { useCallback, useEffect, useRef, useState } from 'react';
+
+import { RequestMessage } from '@/lib/models';
 
 export function useStreamData() {
   const [messages, setMessages] = useState<RequestMessage[]>([]);

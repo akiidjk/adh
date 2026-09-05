@@ -1,16 +1,30 @@
 'use client';
 
+import { Code2, FileCode, Upload, X } from 'lucide-react';
+import * as React from 'react';
+import type { UseFormReturn } from 'react-hook-form';
+
 import { CodeEditor } from '@/components/code-editor';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { PageData } from '@/lib/models';
-import { Code2, FileCode, Upload, X } from 'lucide-react';
-import * as React from 'react';
-import type { UseFormReturn } from 'react-hook-form';
 
 const CODE_PLACEHOLDER = `// Enter your page code here...`;
+type Language = 'html' | 'css' | 'json' | 'yaml' | 'toml' | 'xml' | 'javascript';
+
+const LANGUAGE_BY_EXTENSION: Record<string, Language> = {
+  css: 'css',
+  htm: 'html',
+  html: 'html',
+  js: 'javascript',
+  json: 'json',
+  toml: 'toml',
+  xml: 'xml',
+  yaml: 'yaml',
+  yml: 'yaml'
+};
 
 interface ContentFieldProps {
   form: UseFormReturn<PageData>;
@@ -44,43 +58,12 @@ export function ContentField({
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const body = form.watch('body');
 
-  const [language, setLanguage] = React.useState<'html' | 'css' | 'json' | 'yaml' | 'toml' | 'xml' | 'javascript'>(
-    'html'
-  );
+  const [language, setLanguage] = React.useState<Language>('html');
 
-  // Auto-detect language from uploaded file extension
-  React.useEffect(() => {
-    if (!uploadedFile) return;
-    const ext = uploadedFile.name.split('.').pop()?.toLowerCase();
-    switch (ext) {
-      case 'js':
-        setLanguage('json');
-        break;
-      case 'yaml':
-      case 'yml':
-        setLanguage('yaml');
-        break;
-      case 'toml':
-        setLanguage('toml');
-        break;
-      case 'xml':
-        setLanguage('xml');
-        break;
-      case 'js':
-        setLanguage('javascript');
-        break;
-      case 'css':
-        setLanguage('css');
-        break;
-      case 'html':
-      case 'htm':
-        setLanguage('html');
-        break;
-      default:
-        // leave as-is if unknown
-        break;
-    }
-  }, [uploadedFile]);
+  const detectLanguage = (file: File) => {
+    const detectedLanguage = LANGUAGE_BY_EXTENSION[file.name.split('.').pop()?.toLowerCase() ?? ''];
+    if (detectedLanguage) setLanguage(detectedLanguage);
+  };
 
   const LANGUAGE_OPTIONS: { label: string; value: typeof language }[] = [
     { label: 'HTML', value: 'html' },
@@ -103,7 +86,8 @@ export function ContentField({
           <Tabs
             value={inputMethod}
             onValueChange={(v) => onInputMethodChange(v as 'code' | 'upload')}
-            className='w-full'>
+            className='w-full'
+          >
             <TabsList variant={'line'} className='grid w-full grid-cols-2'>
               <TabsTrigger value='code' className='gap-2'>
                 <Code2 className='size-4' aria-hidden='true' />
@@ -125,8 +109,9 @@ export function ContentField({
                   id='language-select'
                   value={language}
                   onChange={(e) => setLanguage(e.target.value as typeof language)}
-                  className='rounded-md border px-4 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
-                  aria-label='Select language'>
+                  className='rounded-md border px-4 py-2 text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none'
+                  aria-label='Select language'
+                >
                   {LANGUAGE_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
@@ -161,7 +146,11 @@ export function ContentField({
             {/* ── File upload tab ── */}
             <TabsContent value='upload' className='mt-4'>
               <div
-                onDrop={onDrop}
+                onDrop={(event) => {
+                  const file = event.dataTransfer.files[0];
+                  if (file) detectLanguage(file);
+                  onDrop(event);
+                }}
                 onDragOver={onDragOver}
                 onDragLeave={onDragLeave}
                 onClick={() => fileInputRef.current?.click()}
@@ -176,19 +165,23 @@ export function ContentField({
                 className={[
                   'relative flex cursor-pointer flex-col items-center justify-center gap-4',
                   'rounded-lg border-2 border-dashed transition-all duration-200',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                  'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none',
                   isDragOver
                     ? 'border-accent bg-accent/10'
                     : 'border-border bg-input hover:border-muted-foreground hover:bg-secondary/50'
                 ].join(' ')}
-                style={{ minHeight }}>
+                style={{ minHeight }}
+              >
                 <input
                   ref={fileInputRef}
                   type='file'
                   accept='.tsx,.ts,.jsx,.js,.html,.css'
                   onChange={(e) => {
                     const file = e.target.files?.[0];
-                    if (file) onFileSelect(file);
+                    if (file) {
+                      detectLanguage(file);
+                      onFileSelect(file);
+                    }
                   }}
                   className='sr-only'
                   aria-label='Select file'
@@ -211,7 +204,8 @@ export function ContentField({
                         e.stopPropagation();
                         onUploadedFileClear();
                       }}
-                      className='gap-2'>
+                      className='gap-2'
+                    >
                       <X className='size-4' aria-hidden='true' />
                       Remove file
                     </Button>

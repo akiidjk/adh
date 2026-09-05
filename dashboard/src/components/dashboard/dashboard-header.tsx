@@ -1,12 +1,13 @@
 'use client';
 
+import { Trash2 } from 'lucide-react';
+
 import { logout } from '@/app/login/actions';
 import { Header } from '@/components/header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Trash2 } from 'lucide-react';
 
 interface DashboardHeaderProps {
   totalCount: number;

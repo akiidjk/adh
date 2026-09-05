@@ -1,14 +1,15 @@
 'use client';
 
+import { AlertCircle, CheckCircle2, Copy, Info } from 'lucide-react';
+import * as React from 'react';
+import type { UseFormReturn } from 'react-hook-form';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { PageData } from '@/lib/models';
-import { AlertCircle, CheckCircle2, Copy, Info } from 'lucide-react';
-import * as React from 'react';
-import type { UseFormReturn } from 'react-hook-form';
 
 interface EndpointFieldProps {
   form: UseFormReturn<PageData>;
@@ -33,8 +34,9 @@ export function EndpointField({ form, isValidEndpoint, endpointErrors, onCopy }:
                 <TooltipTrigger asChild>
                   <button
                     type='button'
-                    className='text-muted-foreground hover:text-foreground transition-colors'
-                    aria-label='Endpoint information'>
+                    className='text-muted-foreground transition-colors hover:text-foreground'
+                    aria-label='Endpoint information'
+                  >
                     <Info className='size-4' aria-hidden='true' />
                   </button>
                 </TooltipTrigger>
@@ -61,25 +63,25 @@ export function EndpointField({ form, isValidEndpoint, endpointErrors, onCopy }:
                 {...field}
                 type='text'
                 placeholder='/your-page-endpoint'
-                className='bg-input border-border text-foreground placeholder:text-muted-foreground pr-24 font-mono'
+                className='border-border bg-input pr-24 font-mono text-foreground placeholder:text-muted-foreground'
                 aria-describedby='endpoint-description'
               />
             </FormControl>
 
             {endpoint && (
-              <div className='absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1'>
+              <div className='absolute top-1/2 right-2 flex -translate-y-1/2 items-center gap-1'>
                 {isValidEndpoint ? (
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Badge variant='secondary' className='bg-accent/20 text-accent text-xs cursor-help'>
-                          <CheckCircle2 className='size-3 mr-1' aria-hidden='true' />
+                        <Badge variant='secondary' className='cursor-help bg-accent/20 text-xs text-accent'>
+                          <CheckCircle2 className='mr-1 size-3' aria-hidden='true' />
                           Valid
                         </Badge>
                       </TooltipTrigger>
                       <TooltipContent side='top' className='max-w-xs'>
                         <p className='font-medium'>Valid endpoint</p>
-                        <p className='text-muted-foreground text-xs mt-1'>{endpoint.length} characters</p>
+                        <p className='mt-1 text-xs text-muted-foreground'>{endpoint.length} characters</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -89,10 +91,11 @@ export function EndpointField({ form, isValidEndpoint, endpointErrors, onCopy }:
                       <TooltipTrigger asChild>
                         <Badge
                           variant='secondary'
-                          className='bg-destructive/20 text-destructive text-xs cursor-help'
+                          className='cursor-help bg-destructive/20 text-xs text-destructive'
                           role='status'
-                          aria-live='polite'>
-                          <AlertCircle className='size-3 mr-1' aria-hidden='true' />
+                          aria-live='polite'
+                        >
+                          <AlertCircle className='mr-1 size-3' aria-hidden='true' />
                           Invalid
                         </Badge>
                       </TooltipTrigger>
@@ -101,13 +104,13 @@ export function EndpointField({ form, isValidEndpoint, endpointErrors, onCopy }:
                         <ul className='mt-1 space-y-0.5 text-xs'>
                           {endpointErrors.map((error, index) => (
                             <li key={index} className='flex items-start gap-1.5'>
-                              <span className='text-destructive mt-0.5'>•</span>
+                              <span className='mt-0.5 text-destructive'>•</span>
                               <span>{error}</span>
                             </li>
                           ))}
                         </ul>
-                        <div className='mt-2 pt-2 border-t border-border'>
-                          <p className='text-muted-foreground text-xs'>Valid format: /path, /path/subpath</p>
+                        <div className='mt-2 border-t border-border pt-2'>
+                          <p className='text-xs text-muted-foreground'>Valid format: /path, /path/subpath</p>
                         </div>
                       </TooltipContent>
                     </Tooltip>
@@ -124,7 +127,8 @@ export function EndpointField({ form, isValidEndpoint, endpointErrors, onCopy }:
                         className='size-6'
                         onClick={onCopy}
                         aria-label='Copy endpoint'
-                        disabled={!isValidEndpoint}>
+                        disabled={!isValidEndpoint}
+                      >
                         <Copy className='size-3' aria-hidden='true' />
                       </Button>
                     </TooltipTrigger>

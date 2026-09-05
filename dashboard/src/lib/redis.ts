@@ -1,5 +1,6 @@
-import { getRedisUrl } from '@/config';
 import { RedisClientType, createClient } from 'redis';
+
+import { getRedisUrl } from '@/config';
 
 let streamClient: RedisClientType | null = null;
 const clientPool: RedisClientType[] = [];

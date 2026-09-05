@@ -1,11 +1,12 @@
 'use client';
 
-import { cn } from '@/lib/utils';
 import Editor, { type OnMount } from '@monaco-editor/react';
 import type * as Monaco from 'monaco-editor';
 import { useTheme } from 'next-themes';
 import * as React from 'react';
 import { useRef } from 'react';
+
+import { cn } from '@/lib/utils';
 
 import { defineThemes } from './code-theme';
 
@@ -70,7 +71,8 @@ export function CodeEditor({
   return (
     <div
       className={cn('overflow-hidden rounded-md border border-border font-mono text-sm', className)}
-      style={{ minHeight }}>
+      style={{ minHeight }}
+    >
       <Editor
         height={minHeight}
         language={language}

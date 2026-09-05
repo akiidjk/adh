@@ -1,13 +1,14 @@
 'use client';
 
+import { AnimatePresence, motion } from 'framer-motion';
+import { Variants } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { RequestMessage } from '@/lib/models';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Variants } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
 
 const cardVariants: Variants = {
   initial: { opacity: 0, y: 20 },
@@ -54,7 +55,8 @@ export default function ListRequests({ messages, loading, onDelete, onSelect }: 
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className='flex gap-2 justify-center items-center h-20'>
+            className='flex h-20 items-center justify-center gap-2'
+          >
             <Loader2 className='animate-spin' />
             <p>Loading requests...</p>
           </motion.div>
@@ -63,10 +65,11 @@ export default function ListRequests({ messages, loading, onDelete, onSelect }: 
             variants={containerVariants}
             initial='hidden'
             animate='show'
-            className='space-y-2 pb-4 h-[calc(100vh-8rem)]'>
+            className='h-[calc(100vh-8rem)] space-y-2 pb-4'
+          >
             <AnimatePresence>
               {messages.length === 0 ? (
-                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className='text-center py-8 text-gray-500'>
+                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className='py-8 text-center text-gray-500'>
                   No requests found
                 </motion.p>
               ) : (
@@ -78,9 +81,10 @@ export default function ListRequests({ messages, loading, onDelete, onSelect }: 
                     animate='animate'
                     exit='exit'
                     whileHover='hover'
-                    layout>
+                    layout
+                  >
                     <Card className='m-3 mr-6'>
-                      <CardHeader className='flex flex-row justify-between items-start'>
+                      <CardHeader className='flex flex-row items-start justify-between'>
                         <div>
                           <CardTitle>
                             {msg.address || 'Unknown address'}:{msg.port || 'Unknown port'}
@@ -91,15 +95,16 @@ export default function ListRequests({ messages, loading, onDelete, onSelect }: 
                           <Badge
                             className={
                               msg.method === 'GET'
-                                ? 'bg-green-500 hover:bg-green-600 text-white'
+                                ? 'bg-green-500 text-white hover:bg-green-600'
                                 : msg.method === 'POST'
-                                  ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                                  ? 'bg-blue-500 text-white hover:bg-blue-600'
                                   : msg.method === 'DELETE'
-                                    ? 'bg-red-500 hover:bg-red-600 text-white'
+                                    ? 'bg-red-500 text-white hover:bg-red-600'
                                     : msg.method === 'PUT'
-                                      ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
-                                      : 'bg-gray-500 hover:bg-gray-600 text-white'
-                            }>
+                                      ? 'bg-yellow-500 text-white hover:bg-yellow-600'
+                                      : 'bg-gray-500 text-white hover:bg-gray-600'
+                            }
+                          >
                             {msg.method || 'UNKNOWN'}
                           </Badge>
                         </div>
