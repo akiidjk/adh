@@ -37,7 +37,7 @@ fmt: dashboard-fmt webhook-fmt
 lint: dashboard-lint dashboard-type-check webhook-lint
 
 [group('quality')]
-test: webhook-test
+test: dashboard-test webhook-test
 
 [group('dashboard')]
 [working-directory('dashboard')]
@@ -78,6 +78,11 @@ dashboard-lint:
 [working-directory('dashboard')]
 dashboard-type-check:
     bun run type-check
+
+[group('dashboard')]
+[working-directory('dashboard')]
+dashboard-test:
+    bun run test
 
 [group('webhook')]
 [working-directory('webhook')]

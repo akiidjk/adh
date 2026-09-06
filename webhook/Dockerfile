@@ -8,13 +8,15 @@ RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o webhook ./cmd/
 
-FROM alpine:latest
+FROM alpine:3.22
 
-RUN apk add --no-cache redis
+RUN addgroup -S webhook && adduser -S -G webhook webhook && mkdir -p /var/log/webhook && chown webhook:webhook /var/log/webhook
 
-WORKDIR /root/
+WORKDIR /app
 
-COPY --from=builder /app/webhook .
+COPY --from=builder --chown=webhook:webhook /app/webhook .
+
+USER webhook
 
 EXPOSE 8000
 

