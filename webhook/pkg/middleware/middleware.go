@@ -1,11 +1,13 @@
 package middleware
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"net"
 	"net/http"
-	"strconv"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -18,32 +20,48 @@ import (
 
 var rateLimiters = struct {
 	sync.RWMutex
-	m map[string]*rate.Limiter
-}{m: make(map[string]*rate.Limiter)}
+	m           map[string]limiterEntry
+	lastCleanup time.Time
+}{m: make(map[string]limiterEntry), lastCleanup: time.Now()}
+
+type limiterEntry struct {
+	limiter  *rate.Limiter
+	lastSeen time.Time
+}
 
 const (
 	requestsPerSecond = 5
 	burstLimit        = 10
+	maxRequestBody    = 10 << 20
+	limiterTTL        = 10 * time.Minute
 )
 
 func getRateLimiter(ip string) *rate.Limiter {
-	rateLimiters.RLock()
-	limiter, exists := rateLimiters.m[ip]
-	rateLimiters.RUnlock()
+	now := time.Now()
+	rateLimiters.Lock()
+	defer rateLimiters.Unlock()
 
-	if !exists {
-		limiter = rate.NewLimiter(rate.Limit(requestsPerSecond), burstLimit)
-		rateLimiters.Lock()
-		rateLimiters.m[ip] = limiter
-		rateLimiters.Unlock()
+	if now.Sub(rateLimiters.lastCleanup) >= time.Minute {
+		for key, entry := range rateLimiters.m {
+			if now.Sub(entry.lastSeen) > limiterTTL {
+				delete(rateLimiters.m, key)
+			}
+		}
+		rateLimiters.lastCleanup = now
 	}
 
-	return limiter
+	entry, exists := rateLimiters.m[ip]
+	if !exists {
+		entry.limiter = rate.NewLimiter(rate.Limit(requestsPerSecond), burstLimit)
+	}
+	entry.lastSeen = now
+	rateLimiters.m[ip] = entry
+	return entry.limiter
 }
 
 func RateLimitMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ip := strings.Split(r.RemoteAddr, ":")[0] // Ottieni solo l'IP senza porta
+		ip := clientIP(r)
 		limiter := getRateLimiter(ip)
 
 		if !limiter.Allow() {
@@ -53,6 +71,20 @@ func RateLimitMiddleware(next http.Handler) http.Handler {
 		}
 		next.ServeHTTP(w, r)
 	})
+}
+
+func clientIP(r *http.Request) string {
+	if os.Getenv("TRUST_PROXY") == "true" {
+		forwarded := strings.TrimSpace(strings.Split(r.Header.Get("X-Forwarded-For"), ",")[0])
+		if net.ParseIP(forwarded) != nil {
+			return forwarded
+		}
+	}
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err == nil {
+		return host
+	}
+	return r.RemoteAddr
 }
 
 func SetCORSHeaders(w http.ResponseWriter) {
@@ -65,7 +97,26 @@ func SetCORSHeaders(w http.ResponseWriter) {
 
 func LoggerMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		err := r.ParseForm()
+		if r.URL.Path == "/healthz" {
+			next.ServeHTTP(w, r)
+			return
+		}
+		r.Body = http.MaxBytesReader(w, r.Body, maxRequestBody)
+		bodyBytes, err := io.ReadAll(r.Body)
+		_ = r.Body.Close()
+		if err != nil {
+			var tooLarge *http.MaxBytesError
+			if errors.As(err, &tooLarge) {
+				http.Error(w, "Request body too large", http.StatusRequestEntityTooLarge)
+				return
+			}
+			logger.Error("Error reading request body: %v", err)
+			http.Error(w, "Error reading body", http.StatusBadRequest)
+			return
+		}
+
+		r.Body = io.NopCloser(bytes.NewReader(bodyBytes))
+		err = r.ParseForm()
 		if err != nil {
 			logger.Error("Error parsing form data: %v", err)
 			http.Error(w, "Error parsing form data", http.StatusBadRequest)
@@ -77,12 +128,7 @@ func LoggerMiddleware(next http.Handler) http.Handler {
 		logger.Debug("Headers: %v", r.Header)
 		logger.Debug("Cookies: %v", r.Cookies())
 
-		bodyBytes, err := io.ReadAll(io.LimitReader(r.Body, 10<<20)) // 10mb limits
-		if err != nil {
-			logger.Error("Error reading request body: %v", err)
-			http.Error(w, "Error reading body", http.StatusInternalServerError)
-			return
-		}
+		r.Body = io.NopCloser(bytes.NewReader(bodyBytes))
 		bodyString := strings.TrimSpace(string(bodyBytes))
 		logger.Debug("Body (trimmed): %.1000s", bodyString)
 
@@ -133,7 +179,7 @@ func LoggerMiddleware(next http.Handler) http.Handler {
 			}
 		}
 
-		err = redis.AddRequest(strconv.FormatInt(time.Now().UnixMilli(), 10), marshaledRequest)
+		_, err = redis.AddRequest(marshaledRequest)
 		if err != nil {
 			logger.Error("Error storing request in Redis: %v", err)
 			http.Error(w, "Error storing request", http.StatusInternalServerError)

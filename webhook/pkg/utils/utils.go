@@ -2,7 +2,6 @@ package utils
 
 import (
 	"os"
-	"runtime"
 )
 
 func GetEnv(key, defaultValue string) string {
@@ -23,13 +22,3 @@ const (
 	Gray    = "\033[37m"
 	White   = "\033[97m"
 )
-
-func CleanGC() (uint64, uint64) {
-	var mem runtime.MemStats
-	runtime.ReadMemStats(&mem)
-	before := mem.Alloc / 1_048_576
-	runtime.GC() // Cleaning garbage collector
-	runtime.ReadMemStats(&mem)
-	after := mem.Alloc / 1_048_576
-	return before, after
-}

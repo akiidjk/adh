@@ -35,9 +35,3 @@ type Request struct {
 	Report        Report              `json:"report"`
 	TimeStamp     string              `json:"timestamp"`
 }
-
-type StreamMessage struct {
-	Key   string      `redis:"key"`
-	Value interface{} `redis:"value"`
-	Id    string      `redis:"id"`
-}
