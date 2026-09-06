@@ -7,8 +7,8 @@ type SearchResponse = {
 };
 
 export const requestService = {
-  async deleteRequest(id: number): Promise<void> {
-    const response = await fetch(`/api/delete?id=${id}`, {
+  async deleteRequest(id: string): Promise<void> {
+    const response = await fetch(`/api/delete?id=${encodeURIComponent(id)}`, {
       method: 'DELETE'
     });
 
@@ -27,8 +27,9 @@ export const requestService = {
     }
   },
 
-  async searchRequests(query: string): Promise<SearchResponse> {
-    const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+  async searchRequests(query: string, signal?: AbortSignal): Promise<SearchResponse> {
+    const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`, { signal });
+    if (!response.ok && response.status !== 400) throw new Error(`Search failed: ${response.status}`);
     return response.json();
   }
 };

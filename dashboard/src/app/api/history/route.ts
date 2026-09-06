@@ -1,24 +1,24 @@
 'use server';
 
-import { getClient } from '@/lib/redis';
+import { REQUEST_INDEX, getClient } from '@/lib/redis';
 
-export async function GET() {
+export async function GET(request: Request) {
   const client = await getClient();
+  const url = new URL(request.url);
+  const limit = boundedInt(url.searchParams.get('limit'), 50, 1, 100);
+  const offset = boundedInt(url.searchParams.get('offset'), 0, 0, 1_000_000);
 
   try {
-    const keys = (await client.keys('*')).filter((key) => key !== 'data_stream');
-
-    if (keys.length === 0) {
-      return jsonResponse(0, []);
-    }
-
-    const values = await client.json.mGet(keys, '$');
-    if (!values) {
-      return jsonResponse(0, []);
-    }
-    const safeValues = values.map((val) => val ?? Object.create(null));
-    const newValues = formatValues(keys, safeValues);
-    return jsonResponse(values.length, newValues);
+    const results = await client.ft.search(REQUEST_INDEX, '*', {
+      LIMIT: { from: offset, size: limit },
+      SORTBY: { BY: 'timestamp', DIRECTION: 'DESC' },
+      RETURN: ['$']
+    });
+    const data = results.documents.map((document) => ({
+      key: document.id,
+      ...Object.fromEntries(Object.entries(document.value))
+    }));
+    return jsonResponse(results.total, data);
   } catch (error) {
     console.error('Redis error:', error);
     return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
@@ -34,11 +34,7 @@ function jsonResponse(count: number, data: object) {
   });
 }
 
-function formatValues(keys: string[], values: object[][]): { [x: string]: object }[] {
-  const formattedValues = [];
-  for (const [index, value] of values.entries()) {
-    const formattedKey = keys[index];
-    formattedValues.push({ [formattedKey]: value[0] });
-  }
-  return formattedValues;
+function boundedInt(value: string | null, fallback: number, min: number, max: number) {
+  const parsed = Number(value ?? fallback);
+  return Number.isInteger(parsed) && parsed >= min && parsed <= max ? parsed : fallback;
 }

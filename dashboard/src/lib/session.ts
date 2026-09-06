@@ -4,8 +4,9 @@ import 'server-only';
 
 import { getSecretKey } from '@/config';
 
-const secretKey = await getSecretKey();
-const encodedKey = new TextEncoder().encode(secretKey);
+async function encodedKey() {
+  return new TextEncoder().encode(await getSecretKey());
+}
 
 export async function createSession(userId: string) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
@@ -13,7 +14,9 @@ export async function createSession(userId: string) {
 
   (await cookies()).set('session', session, {
     httpOnly: true,
-    // secure: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
     expires: expiresAt
   });
 }
@@ -32,17 +35,16 @@ export async function encrypt(payload: SessionPayload) {
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('7d')
-    .sign(encodedKey);
+    .sign(await encodedKey());
 }
 
 export async function decrypt(session: string | undefined = '') {
   try {
-    const { payload } = await jwtVerify(session, encodedKey, {
+    const { payload } = await jwtVerify(session, await encodedKey(), {
       algorithms: ['HS256']
     });
     return payload;
-  } catch (error) {
-    error = 'Failed to verify session';
-    console.log(error);
+  } catch {
+    return undefined;
   }
 }

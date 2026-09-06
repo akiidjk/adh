@@ -16,22 +16,20 @@ import { RequestMessage } from '@/lib/models';
 import { requestService } from '@/services/requestService';
 
 export default function Home() {
-  const { messages: historyMessages, loading, updateMessages } = useRequestsHistory();
+  const { messages: historyMessages, loading, loadingMore, updateMessages, loadMore, hasMore } = useRequestsHistory();
   const { messages: streamMessages, updateMessages: updateStreamMessages, isConnected } = useStreamData();
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 500);
-  const [selectedKey, setSelectedKey] = useState<number | null>(null);
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<RequestMessage[]>([]);
 
   const messages = useMemo(() => {
-    const combined = [
-      ...streamMessages.filter((msg) => !historyMessages.some((hm) => hm.key === msg.key)),
-      ...historyMessages
-    ];
-    return combined.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    const combined = new Map(historyMessages.map((message) => [message.key, message]));
+    for (const message of streamMessages) combined.set(message.key, message);
+    return [...combined.values()].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   }, [streamMessages, historyMessages]);
 
-  const handleSelect = useCallback((key: number) => {
+  const handleSelect = useCallback((key: string) => {
     setSelectedKey(key);
   }, []);
 
@@ -47,7 +45,7 @@ export default function Home() {
   }, [updateMessages, updateStreamMessages]);
 
   const handleDelete = useCallback(
-    async (key: number) => {
+    async (key: string) => {
       try {
         const isInHistory = historyMessages.some((msg) => msg.key === key);
         const isInStream = streamMessages.some((msg) => msg.key === key);
@@ -71,12 +69,13 @@ export default function Home() {
   );
 
   useEffect(() => {
-    if (!debouncedQuery.trim()) return;
+    if (!debouncedQuery.trim()) {
+      return;
+    }
 
-    let active = true;
+    const controller = new AbortController();
     const search = async () => {
-      const results = await requestService.searchRequests(debouncedQuery);
-      if (!active) return;
+      const results = await requestService.searchRequests(debouncedQuery, controller.signal);
 
       if (results.success === false) {
         setSearchResults([]);
@@ -89,15 +88,15 @@ export default function Home() {
       }
     };
 
-    void search();
-    return () => {
-      active = false;
-    };
+    void search().catch((error) => {
+      if (error instanceof Error && error.name !== 'AbortError') toast.error(error.message);
+    });
+    return () => controller.abort();
   }, [debouncedQuery]);
 
-  const displayMessages = query.trim() && searchResults.length > 0 ? searchResults : messages;
+  const displayMessages = query.trim() ? searchResults : messages;
   const selectedMessage = selectedKey !== null ? displayMessages.find((msg) => msg.key === selectedKey) : null;
-  const showLoadingLayer = loading || !isConnected;
+  const showLoadingLayer = loading;
 
   return (
     <>
@@ -105,6 +104,7 @@ export default function Home() {
 
       <DashboardHeader
         totalCount={displayMessages.length}
+        isConnected={isConnected}
         query={query}
         onQueryChange={setQuery}
         onDeleteAll={handleDeleteAll}
@@ -112,7 +112,15 @@ export default function Home() {
 
       <ResizablePanelGroup orientation='horizontal'>
         <ResizablePanel defaultSize={25} minSize={25}>
-          <ListRequests messages={displayMessages} loading={loading} onDelete={handleDelete} onSelect={handleSelect} />
+          <ListRequests
+            messages={displayMessages}
+            loading={loading}
+            loadingMore={loadingMore}
+            hasMore={!query.trim() && hasMore}
+            onLoadMore={loadMore}
+            onDelete={handleDelete}
+            onSelect={handleSelect}
+          />
         </ResizablePanel>
 
         <ResizableHandle withHandle />

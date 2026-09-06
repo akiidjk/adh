@@ -1,43 +1,45 @@
-import { getStreamClient } from '@/lib/redis';
+import { EVENTS_KEY, getClient, getStreamClient } from '@/lib/redis';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
   const streamClient = await getStreamClient();
-
-  const url = new URL(req.url);
-  const lastID = url.searchParams.get('lastID') || '$';
+  const client = await getClient();
+  const lastID = req.headers.get('last-event-id') || '$';
 
   const stream = new ReadableStream({
     async start(controller) {
       let currentID = lastID;
       const encoder = new TextEncoder();
-      controller.enqueue(encoder.encode(`data: ${JSON.stringify({ message: 'Connected!' })}\n\n`));
+      controller.enqueue(encoder.encode('retry: 1000\n\n'));
       try {
         while (!req.signal.aborted) {
-          const results = await streamClient.xRead({ key: 'data_stream', id: currentID }, { COUNT: 1, BLOCK: 5000 });
+          const results = await streamClient.xRead({ key: EVENTS_KEY, id: currentID }, { COUNT: 10, BLOCK: 5000 });
 
-          if (!results) continue;
+          if (!results) {
+            controller.enqueue(encoder.encode(': keep-alive\n\n'));
+            continue;
+          }
 
           for (const { messages } of results) {
             for (const { id, message } of messages) {
               currentID = id;
-              const values = Object.values(message);
-              if (values.length >= 2) {
-                const data = JSON.stringify({ [values[0]]: values[1] }).replace(/\n/g, '\\n');
-                controller.enqueue(encoder.encode(`data: ${data}\n\n`));
-              }
+              const key = message.key;
+              if (typeof key !== 'string') continue;
+              const value = await client.json.get(key);
+              if (!value || typeof value !== 'object' || Array.isArray(value)) continue;
+              controller.enqueue(
+                encoder.encode(`id: ${id}\ndata: ${JSON.stringify({ key, ...(value as Record<string, unknown>) })}\n\n`)
+              );
             }
           }
         }
       } catch (err) {
-        console.error('Stream error:', err);
-        controller.enqueue(`event: error\ndata: ${JSON.stringify({ error: 'Stream failed' })}\n\n`);
-      }
-
-      req.signal.addEventListener('abort', () => {
+        if (!req.signal.aborted) console.error('Stream error:', err);
+      } finally {
+        streamClient.destroy();
         controller.close();
-      });
+      }
     }
   });
 

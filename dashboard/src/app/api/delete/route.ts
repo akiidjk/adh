@@ -1,13 +1,13 @@
 'use server';
 
-import { getClient } from '@/lib/redis';
+import { REQUEST_PREFIX, getClient } from '@/lib/redis';
 
 export async function DELETE(request: Request) {
   const client = await getClient();
   const url = new URL(request.url);
   const id = url.searchParams.get('id');
 
-  if (!id) {
+  if (!id?.startsWith(REQUEST_PREFIX)) {
     return new Response(JSON.stringify({ error: 'ID missing in the request URL' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' }

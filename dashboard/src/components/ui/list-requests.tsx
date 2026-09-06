@@ -38,11 +38,22 @@ const containerVariants = {
 interface ListRequestsProps {
   messages: RequestMessage[];
   loading: boolean;
-  onDelete: (key: number) => Promise<void>;
-  onSelect: (key: number) => void;
+  loadingMore: boolean;
+  hasMore: boolean;
+  onLoadMore: () => void;
+  onDelete: (key: string) => Promise<void>;
+  onSelect: (key: string) => void;
 }
 
-export default function ListRequests({ messages, loading, onDelete, onSelect }: ListRequestsProps) {
+export default function ListRequests({
+  messages,
+  loading,
+  loadingMore,
+  hasMore,
+  onLoadMore,
+  onDelete,
+  onSelect
+}: ListRequestsProps) {
   const truncateText = (text: string, maxLength: number) => {
     if (!text) return '';
     return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
@@ -131,6 +142,16 @@ export default function ListRequests({ messages, loading, onDelete, onSelect }: 
                 ))
               )}
             </AnimatePresence>
+            {hasMore && (
+              <Button
+                variant='outline'
+                className='mx-3 w-[calc(100%-2.25rem)]'
+                disabled={loadingMore}
+                onClick={onLoadMore}
+              >
+                {loadingMore ? 'Loading...' : 'Load more'}
+              </Button>
+            )}
           </motion.div>
         )}
       </ScrollArea>

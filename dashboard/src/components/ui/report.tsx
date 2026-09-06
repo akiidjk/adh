@@ -1,5 +1,3 @@
-import Image from 'next/image';
-
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -147,10 +145,10 @@ export function ReportDetails({ report }: { report: Report }) {
           </CardHeader>
           <Separator />
           <CardContent className='flex justify-center pt-4'>
-            <Image
+            <img
               src={`data:image/png;base64,${report.screenshot}`}
               alt='Page screenshot'
-              className='max-h-96 rounded border shadow-sm'
+              className='max-h-96 max-w-full rounded border shadow-sm'
             />
           </CardContent>
         </Card>

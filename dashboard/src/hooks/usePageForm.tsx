@@ -69,6 +69,10 @@ export function usePageForm(onSuccess?: () => void) {
 
   const handleFileSelect = React.useCallback(
     (file: File) => {
+      if (file.size > 1024 * 1024) {
+        toast.error('File must be 1 MiB or smaller');
+        return;
+      }
       const validExtensions = ['.tsx', '.ts', '.jsx', '.js', '.html', '.css'];
       const extension = file.name.substring(file.name.lastIndexOf('.'));
       if (!validExtensions.includes(extension)) {
@@ -129,7 +133,8 @@ export function usePageForm(onSuccess?: () => void) {
       endpoint: values.endpoint,
       body: values.body || undefined,
       statusCode: values.statusCode,
-      headers: values.headers
+      headers: values.headers,
+      originalEndpoint: isEditMode ? (originalEndpoint ?? undefined) : undefined
     };
 
     try {

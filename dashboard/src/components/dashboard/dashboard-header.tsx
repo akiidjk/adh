@@ -11,16 +11,22 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 interface DashboardHeaderProps {
   totalCount: number;
+  isConnected: boolean;
   query: string;
   onQueryChange: (value: string) => void;
   onDeleteAll: () => void;
 }
 
-export function DashboardHeader({ totalCount, query, onQueryChange, onDeleteAll }: DashboardHeaderProps) {
+export function DashboardHeader({ totalCount, isConnected, query, onQueryChange, onDeleteAll }: DashboardHeaderProps) {
   return (
     <Header
       title='Main Dashboard'
-      leftContent={<Badge>Total requests: {totalCount}</Badge>}
+      leftContent={
+        <div className='flex gap-2'>
+          <Badge>Total requests: {totalCount}</Badge>
+          <Badge variant={isConnected ? 'secondary' : 'destructive'}>{isConnected ? 'Live' : 'Reconnecting'}</Badge>
+        </div>
+      }
       showModeToggle
       onLogout={logout}
       rightContent={

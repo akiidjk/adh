@@ -6,6 +6,7 @@
     "dev": "bun run --bun next dev",
     "build": "bun run --bun next build",
     "start": "bun run --bun next start",
+    "test": "bun test",
     "lint": "eslint",
     "type-check": "tsc --noEmit --pretty",
     "format": "prettier --check .",
@@ -50,5 +51,8 @@
     "prettier-plugin-tailwindcss": "^0.7.4",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "dompurify": "3.4.13"
   }
 }

@@ -1,31 +1,25 @@
 'use server';
 
-import { getClient } from '@/lib/redis';
+import { EVENTS_KEY, REQUEST_PREFIX, getClient } from '@/lib/redis';
 
 export async function DELETE() {
   const client = await getClient();
 
   try {
     let cursor = '0';
-    let keys: string[] = [];
+    let deleted = 0;
 
     do {
-      const result = await client.scan(cursor, { MATCH: '*', COUNT: 100 });
-      result.keys = result.keys.filter((k: string) => k !== 'page_data');
+      const result = await client.scan(cursor, { MATCH: `${REQUEST_PREFIX}*`, COUNT: 100 });
       cursor = result.cursor;
-      keys = keys.concat(result.keys);
+      if (result.keys.length > 0) {
+        deleted += await client.unlink(result.keys);
+      }
     } while (cursor !== '0');
 
-    if (keys.length <= 0) {
-      return new Response(JSON.stringify({ success: true, message: 'No keys to delete' }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    } else {
-      await client.del(keys);
-    }
+    await client.del(EVENTS_KEY);
 
-    return new Response(JSON.stringify({ success: true, message: `Deleted ${keys.length} keys` }), {
+    return new Response(JSON.stringify({ success: true, message: `Deleted ${deleted} keys` }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
