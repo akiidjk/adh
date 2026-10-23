@@ -1,6 +1,6 @@
 module github.com/akiidjk/adh
 
-go 1.26
+go 1.27.3
 
 require (
 	github.com/joho/godotenv v1.5.1
