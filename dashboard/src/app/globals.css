@@ -7,90 +7,92 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Palette: "Nightcore" — indigo/violet neutrals (midnight-edition) on deep navy, with a vibrant
- * candy-grape-fizz accent. Dark-first; both modes target WCAG AA for body text. next-themes sets
- * `class` (shadcn tokens below) and `data-mode` (Kumo's light-dark() tokens) together.
+ * Palette: neutral greyscale surfaces (canvas / recessed / base / fill / hairline / line) with a
+ * single indigo brand accent (#4A4EA1). Role mapping to shadcn tokens:
+ *   canvas=background, base=card/popover, recessed=secondary/muted, fill=accent (hover/selected),
+ *   hairline=border, line=input, text-strong=foreground, text-subtle=muted-foreground, brand=primary.
+ * next-themes sets `class` (tokens below) and `data-mode` (Kumo light-dark() tokens) together.
  */
 :root {
-  --background: #faf9ff;
-  --foreground: #16122e;
+  --background: #fafafa;
+  --foreground: #0a0a0a;
   --card: #ffffff;
-  --card-foreground: #16122e;
+  --card-foreground: #0a0a0a;
   --popover: #ffffff;
-  --popover-foreground: #16122e;
-  --primary: #5c3edf;
+  --popover-foreground: #0a0a0a;
+  --primary: #4a4ea1;
   --primary-foreground: #ffffff;
-  --secondary: #ececf7;
-  --secondary-foreground: #3b355e;
-  --muted: #f1f0fa;
-  --muted-foreground: #534c7f;
-  --accent: #e7e9ff;
-  --accent-foreground: #402e9d;
-  --destructive: #e11d48;
+  --secondary: #f2f2f2;
+  --secondary-foreground: #0a0a0a;
+  --muted: #f2f2f2;
+  --muted-foreground: #6b6b6b;
+  --accent: #ebebeb;
+  --accent-foreground: #0a0a0a;
+  --destructive: #dc2626;
   --destructive-foreground: #ffffff;
-  --border: #e0def1;
-  --input: #ddd9f0;
-  --ring: #5c3edf;
-  --chart-1: #5c3edf;
-  --chart-2: #755fee;
-  --chart-3: #9084ff;
-  --chart-4: #4d35ba;
-  --chart-5: #8b84c1;
-  --sidebar: #f7f7fc;
-  --sidebar-foreground: #16122e;
-  --sidebar-primary: #5c3edf;
+  --border: #e8e8e8;
+  --input: #dadada;
+  --ring: #4a4ea1;
+  --chart-1: #4a4ea1;
+  --chart-2: #8f5a1c;
+  --chart-3: #6b6b6b;
+  --chart-4: #a1a1a1;
+  --chart-5: #42468f;
+  --sidebar: #fafafa;
+  --sidebar-foreground: #0a0a0a;
+  --sidebar-primary: #4a4ea1;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #ececf7;
-  --sidebar-accent-foreground: #3b355e;
-  --sidebar-border: #e0def1;
-  --sidebar-ring: #5c3edf;
+  --sidebar-accent: #ebebeb;
+  --sidebar-accent-foreground: #0a0a0a;
+  --sidebar-border: #e8e8e8;
+  --sidebar-ring: #4a4ea1;
   --font-sans: Inter, sans-serif;
   --font-serif: Playfair Display, serif;
   --font-mono: JetBrains Mono, monospace;
   --radius: 0.625rem;
-  --shadow-2xs: 0px 1px 2px 0px hsl(252 47% 11% / 0.04);
-  --shadow-xs: 0px 1px 2px 0px hsl(252 47% 11% / 0.06);
-  --shadow-sm: 0px 1px 3px 0px hsl(252 47% 11% / 0.1), 0px 1px 2px -1px hsl(252 47% 11% / 0.1);
-  --shadow: 0px 1px 3px 0px hsl(252 47% 11% / 0.1), 0px 1px 2px -1px hsl(252 47% 11% / 0.1);
-  --shadow-md: 0px 4px 6px -1px hsl(252 47% 11% / 0.1), 0px 2px 4px -2px hsl(252 47% 11% / 0.1);
-  --shadow-lg: 0px 10px 15px -3px hsl(252 47% 11% / 0.1), 0px 4px 6px -4px hsl(252 47% 11% / 0.1);
-  --shadow-xl: 0px 20px 25px -5px hsl(252 47% 11% / 0.1), 0px 8px 10px -6px hsl(252 47% 11% / 0.1);
-  --shadow-2xl: 0px 25px 50px -12px hsl(252 47% 11% / 0.25);
+  --shadow-2xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.04);
+  --shadow-xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.06);
+  --shadow-sm: 0px 1px 3px 0px hsl(0 0% 0% / 0.1), 0px 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow: 0px 1px 3px 0px hsl(0 0% 0% / 0.1), 0px 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow-md: 0px 4px 6px -1px hsl(0 0% 0% / 0.1), 0px 2px 4px -2px hsl(0 0% 0% / 0.1);
+  --shadow-lg: 0px 10px 15px -3px hsl(0 0% 0% / 0.1), 0px 4px 6px -4px hsl(0 0% 0% / 0.1);
+  --shadow-xl: 0px 20px 25px -5px hsl(0 0% 0% / 0.1), 0px 8px 10px -6px hsl(0 0% 0% / 0.1);
+  --shadow-2xl: 0px 25px 50px -12px hsl(0 0% 0% / 0.25);
 }
 
 .dark {
-  --background: #0d0a1c;
-  --foreground: #ececf7;
-  --card: #16122f;
-  --card-foreground: #ececf7;
-  --popover: #16122f;
-  --popover-foreground: #ececf7;
-  --primary: #8177ff;
-  --primary-foreground: #140f2e;
-  --secondary: #221c45;
-  --secondary-foreground: #ececf7;
-  --muted: #1c1738;
-  --muted-foreground: #9e98d0;
-  --accent: #2b255a;
-  --accent-foreground: #cccfff;
-  --destructive: #fb7185;
-  --destructive-foreground: #1a0b0e;
-  --border: #2a2450;
-  --input: #2a2450;
-  --ring: #8177ff;
-  --chart-1: #8177ff;
-  --chart-2: #a29cff;
-  --chart-3: #9f9ff0;
-  --chart-4: #aaaaff;
-  --chart-5: #9e98d0;
-  --sidebar: #0d0a1c;
-  --sidebar-foreground: #ececf7;
-  --sidebar-primary: #8177ff;
-  --sidebar-primary-foreground: #140f2e;
-  --sidebar-accent: #221c45;
-  --sidebar-accent-foreground: #ececf7;
-  --sidebar-border: #2a2450;
-  --sidebar-ring: #8177ff;
+  --background: #0b0b0c;
+  --foreground: #fafafa;
+  --card: #1a1a1b;
+  --card-foreground: #fafafa;
+  --popover: #1a1a1b;
+  --popover-foreground: #fafafa;
+  --primary: #4a4ea1;
+  --primary-foreground: #fafafa;
+  --secondary: #151516;
+  --secondary-foreground: #fafafa;
+  --muted: #151516;
+  --muted-foreground: #a1a1a1;
+  --accent: #262627;
+  --accent-foreground: #fafafa;
+  --destructive: #f87171;
+  --destructive-foreground: #1a0b0b;
+  --border: #262628;
+  --input: #343436;
+  --ring: #4a4ea1;
+  --chart-1: #a9adea;
+  --chart-2: #edbb71;
+  --chart-3: #a1a1a1;
+  --chart-4: #6b6b6b;
+  --chart-5: #4a4ea1;
+  --sidebar: #0b0b0c;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #a9adea;
+  --sidebar-primary-foreground: #0b0b0c;
+  --sidebar-accent: #262627;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: #262628;
+  --sidebar-ring: #4a4ea1;
   --font-sans: Inter, sans-serif;
   --font-serif: Playfair Display, serif;
   --font-mono: JetBrains Mono, monospace;
@@ -105,83 +107,27 @@
   --shadow-2xl: 0px 25px 50px -12px hsl(0 0% 0% / 0.7);
 }
 
-/* Re-point Kumo's brand tokens from Cloudflare orange to the Nightcore violet accent. */
+/* Re-point Kumo's brand tokens to the indigo brand. */
 @theme {
-  --text-color-kumo-brand: light-dark(#5c3edf, #8177ff);
-  --background-color-kumo-brand: light-dark(#5c3edf, #8177ff);
-  --background-color-kumo-brand-hover: light-dark(#4e35bf, #9f9ff0);
-  --border-color-kumo-brand: light-dark(#5c3edf, #8177ff);
-  --ring-color-kumo-brand: light-dark(#5c3edf, #8177ff);
+  --text-color-kumo-brand: light-dark(#42468f, #a9adea);
+  --background-color-kumo-brand: light-dark(#4a4ea1, #4a4ea1);
+  --background-color-kumo-brand-hover: light-dark(#3f4391, #5a5eb5);
+  --border-color-kumo-brand: light-dark(#4a4ea1, #4a4ea1);
+  --ring-color-kumo-brand: light-dark(#4a4ea1, #4a4ea1);
 }
 
-/* Named Nightcore scales, available as utilities (e.g. bg-candy-grape-fizz-500). */
+/* Named semantic surface/brand tokens as utilities (e.g. bg-base, border-hairline, text-brand-text). */
 @theme {
-  --color-midnight-edition-50: #f7f7fc;
-  --color-midnight-edition-100: #ececf7;
-  --color-midnight-edition-200: #d9d7f0;
-  --color-midnight-edition-300: #bfbbe3;
-  --color-midnight-edition-400: #9e98d0;
-  --color-midnight-edition-500: #8b84c1;
-  --color-midnight-edition-600: #6c63a0;
-  --color-midnight-edition-700: #534c7f;
-  --color-midnight-edition-800: #3b355e;
-  --color-midnight-edition-900: #2d2847;
-  --color-midnight-edition-950: #0d0a1c;
-  --color-azulado-50: #f6f7ff;
-  --color-azulado-100: #ececff;
-  --color-azulado-200: #d9d9ff;
-  --color-azulado-300: #c0bfff;
-  --color-azulado-400: #a29cff;
-  --color-azulado-500: #9084ff;
-  --color-azulado-600: #755fee;
-  --color-azulado-700: #604cc6;
-  --color-azulado-800: #4b3b9d;
-  --color-azulado-900: #3d347c;
-  --color-azulado-950: #201a47;
-  --color-deep-space-rodeo-50: #f7f7fe;
-  --color-deep-space-rodeo-100: #e2e2f2;
-  --color-deep-space-rodeo-200: #bbbcdc;
-  --color-deep-space-rodeo-300: #8b8bbc;
-  --color-deep-space-rodeo-400: #524d90;
-  --color-deep-space-rodeo-500: #332971;
-  --color-deep-space-rodeo-600: #30246f;
-  --color-deep-space-rodeo-700: #2d2465;
-  --color-deep-space-rodeo-800: #2b255a;
-  --color-deep-space-rodeo-900: #29264f;
-  --color-deep-space-rodeo-950: #262540;
-  --color-blueberry-50: #f6f7ff;
-  --color-blueberry-100: #e3e4f8;
-  --color-blueberry-200: #c1c2ec;
-  --color-blueberry-300: #9595d7;
-  --color-blueberry-400: #625cb6;
-  --color-blueberry-500: #46399c;
-  --color-blueberry-600: #3e2d95;
-  --color-blueberry-700: #382b84;
-  --color-blueberry-800: #322971;
-  --color-blueberry-900: #2e2960;
-  --color-blueberry-950: #252347;
-  --color-royal-nightcore-50: #f6f7ff;
-  --color-royal-nightcore-100: #e5e6fe;
-  --color-royal-nightcore-200: #c6c8fa;
-  --color-royal-nightcore-300: #9f9ff0;
-  --color-royal-nightcore-400: #7169da;
-  --color-royal-nightcore-500: #5948c6;
-  --color-royal-nightcore-600: #4d35ba;
-  --color-royal-nightcore-700: #4330a1;
-  --color-royal-nightcore-800: #392c87;
-  --color-royal-nightcore-900: #332b70;
-  --color-royal-nightcore-950: #24224d;
-  --color-candy-grape-fizz-50: #f6f7ff;
-  --color-candy-grape-fizz-100: #e7e9ff;
-  --color-candy-grape-fizz-200: #cccfff;
-  --color-candy-grape-fizz-300: #aaaaff;
-  --color-candy-grape-fizz-400: #8177ff;
-  --color-candy-grape-fizz-500: #6c58f1;
-  --color-candy-grape-fizz-600: #5c3edf;
-  --color-candy-grape-fizz-700: #4e35bf;
-  --color-candy-grape-fizz-800: #402e9d;
-  --color-candy-grape-fizz-900: #372e7f;
-  --color-candy-grape-fizz-950: #241f53;
+  --color-canvas: light-dark(#fafafa, #0b0b0c);
+  --color-recessed: light-dark(#f2f2f2, #151516);
+  --color-base: light-dark(#ffffff, #1a1a1b);
+  --color-fill: light-dark(#ebebeb, #262627);
+  --color-hairline: light-dark(#e8e8e8, #262628);
+  --color-line: light-dark(#dadada, #343436);
+  --color-text-strong: light-dark(#0a0a0a, #fafafa);
+  --color-text-subtle: light-dark(#6b6b6b, #a1a1a1);
+  --color-brand: #4a4ea1;
+  --color-brand-text: light-dark(#42468f, #a9adea);
 }
 
 @theme inline {
