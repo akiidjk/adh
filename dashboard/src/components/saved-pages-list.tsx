@@ -15,7 +15,6 @@ import {
   Trash2
 } from 'lucide-react';
 import * as React from 'react';
-import { toast } from 'sonner';
 import useSWR from 'swr';
 
 import { PagePreviewDialog } from '@/components/page-preview-dialog';
@@ -36,6 +35,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { StoredPageData } from '@/lib/models';
 import { getStatusCodeBadgeClass } from '@/lib/status-code';
+import { toast } from '@/lib/toast';
 
 type PagesData = Record<string, StoredPageData>;
 

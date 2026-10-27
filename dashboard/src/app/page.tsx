@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { toast } from 'sonner';
 
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 import { LoadingOverlay } from '@/components/dashboard/loading-overlay';
@@ -13,6 +12,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { useRequestsHistory } from '@/hooks/useRequestsHistory';
 import { useStreamData } from '@/hooks/useStreamData';
 import { RequestMessage } from '@/lib/models';
+import { toast } from '@/lib/toast';
 import { requestService } from '@/services/requestService';
 
 export default function Home() {

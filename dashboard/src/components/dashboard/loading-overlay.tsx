@@ -1,8 +1,7 @@
 'use client';
 
+import { Loader } from '@cloudflare/kumo';
 import { motion } from 'framer-motion';
-
-import { Spinner } from '@/components/ui/spinner';
 
 interface LoadingOverlayProps {
   loading: boolean;
@@ -20,7 +19,7 @@ export function LoadingOverlay({ loading, isConnected }: LoadingOverlayProps) {
         transition={{ duration: 0.2 }}
         className='flex flex-col items-center gap-4'
       >
-        <Spinner className='h-12 w-12 text-primary' />
+        <Loader size={48} className='text-primary' aria-label='Loading' />
         <p className='text-lg font-semibold text-foreground'>{message}</p>
       </motion.div>
     </div>

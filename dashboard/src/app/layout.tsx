@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 
+import { KumoProviders } from '@/components/providers';
 import { ThemeProvider } from '@/components/theme-provider';
-import { Toaster } from '@/components/ui/sonner';
 
 import './globals.css';
 
@@ -31,8 +31,9 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider attribute={['class', 'data-mode']} defaultTheme='system' enableSystem disableTransitionOnChange>
           {/* isolation:isolate keeps Kumo's portaled overlays above app layout z-index */}
-          <div className='isolate'>{children}</div>
-          <Toaster />
+          <div className='isolate'>
+            <KumoProviders>{children}</KumoProviders>
+          </div>
         </ThemeProvider>
       </body>
     </html>

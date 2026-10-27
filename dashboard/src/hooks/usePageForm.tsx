@@ -4,9 +4,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import * as React from 'react';
 import { useFieldArray, useForm, useWatch } from 'react-hook-form';
-import { toast } from 'sonner';
 
 import { type PageData, type StoredPageData, pageSchema } from '@/lib/models';
+import { toast } from '@/lib/toast';
 import { pagesService } from '@/services/pagesService';
 
 type InputMethod = 'code' | 'upload';
