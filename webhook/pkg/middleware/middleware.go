@@ -15,6 +15,7 @@ import (
 	"github.com/akiidjk/adh/pkg/logger"
 	"github.com/akiidjk/adh/pkg/models"
 	"github.com/akiidjk/adh/pkg/redis"
+	"github.com/akiidjk/adh/pkg/utils"
 	"golang.org/x/time/rate"
 )
 
@@ -32,9 +33,10 @@ type limiterEntry struct {
 const (
 	requestsPerSecond = 5
 	burstLimit        = 10
-	maxRequestBody    = 10 << 20
 	limiterTTL        = 10 * time.Minute
 )
+
+var maxRequestBody = utils.GetEnvInt64("MAX_REQUEST_BODY", 10<<20)
 
 func getRateLimiter(ip string) *rate.Limiter {
 	now := time.Now()
@@ -89,10 +91,9 @@ func clientIP(r *http.Request) string {
 
 func SetCORSHeaders(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD")
 	w.Header().Set("Access-Control-Allow-Headers", "*")
 	w.Header().Set("Access-Control-Max-Age", "86400")
-	w.Header().Set("Vary", "Origin")
 }
 
 func LoggerMiddleware(next http.Handler) http.Handler {
@@ -125,12 +126,12 @@ func LoggerMiddleware(next http.Handler) http.Handler {
 
 		logger.Debug("Request received from: %s | Method: %s | Path: %s", r.RemoteAddr, r.Method, r.URL.Path)
 		logger.Debug("User agent: %s", r.UserAgent())
-		logger.Debug("Headers: %v", r.Header)
-		logger.Debug("Cookies: %v", r.Cookies())
+		logger.Debug("Headers: %d received", len(r.Header))
+		logger.Debug("Cookies: %d received", len(r.Cookies()))
 
 		r.Body = io.NopCloser(bytes.NewReader(bodyBytes))
 		bodyString := strings.TrimSpace(string(bodyBytes))
-		logger.Debug("Body (trimmed): %.1000s", bodyString)
+		logger.Debug("Body: %d bytes", len(bodyBytes))
 
 		host, port, err := net.SplitHostPort(r.RemoteAddr)
 		if err != nil {
@@ -160,7 +161,7 @@ func LoggerMiddleware(next http.Handler) http.Handler {
 			if err := json.Unmarshal(bodyBytes, &report); err != nil {
 				logger.Error("Error parsing JSON report: %v", err)
 			} else {
-				logger.Debug("Report parsed: %+v", report)
+				logger.Debug("Report parsed (uri=%q, dom=%d bytes)", report.URI, len(report.DOM))
 				request.Report = report
 			}
 		}

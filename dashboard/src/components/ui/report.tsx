@@ -4,6 +4,10 @@ import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Report } from '@/lib/models';
 
+// Cap the inlined base64 screenshot (~8 MiB) so a hostile beacon can't wedge the UI
+// with a multi-hundred-MB data URI. ponytail: hard cap, no streaming needed for a preview.
+const MAX_SCREENSHOT_B64 = 8 * 1024 * 1024;
+
 export function ReportDetails({ report }: { report: Report }) {
   return (
     <div className='space-y-4'>
@@ -138,7 +142,7 @@ export function ReportDetails({ report }: { report: Report }) {
       )}
 
       {/* Screenshot Preview */}
-      {report.screenshot && (
+      {report.screenshot && report.screenshot.length <= MAX_SCREENSHOT_B64 && (
         <Card>
           <CardHeader className='pb-3'>
             <CardTitle>Screenshot</CardTitle>

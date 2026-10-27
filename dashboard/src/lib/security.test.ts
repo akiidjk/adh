@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, mock, test } from 'bun:test';
 
 import { getSecretKey } from '@/config';
+import { lockoutKey, safeEqual } from '@/lib/lockout';
 import { pageSchema } from '@/lib/models';
 
 mock.module('server-only', () => ({}));
@@ -30,5 +31,21 @@ describe('security boundaries', () => {
     expect(pageSchema.safeParse(base).success).toBe(true);
     expect(pageSchema.safeParse({ ...base, body: 'x'.repeat(1024 * 1024 + 1) }).success).toBe(false);
     expect(pageSchema.safeParse({ ...base, headers: [{ key: 'X-Test', value: 'bad\r\nvalue' }] }).success).toBe(false);
+  });
+
+  test('login lockout is per-IP only behind a trusted proxy', () => {
+    // Trusted proxy: each client IP gets its own counter, so one attacker can't lock out the operator.
+    expect(lockoutKey(true, '203.0.113.1, 10.0.0.1')).toBe('adh:login-attempts:203.0.113.1');
+    expect(lockoutKey(true, '198.51.100.7')).toBe('adh:login-attempts:198.51.100.7');
+    // Untrusted: the header is spoofable, so fall back to a single shared counter.
+    expect(lockoutKey(false, '203.0.113.1')).toBe('adh:login-attempts:global');
+    expect(lockoutKey(true, null)).toBe('adh:login-attempts:global');
+  });
+
+  test('credential comparison is constant-time and correct', () => {
+    expect(safeEqual('hunter2', 'hunter2')).toBe(true);
+    expect(safeEqual('hunter2', 'hunter3')).toBe(false);
+    expect(safeEqual('short', 'longer-value')).toBe(false);
+    expect(safeEqual('', '')).toBe(true);
   });
 });

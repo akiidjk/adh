@@ -22,7 +22,14 @@ const (
 	requestPrefix = "adh:request:"
 	pagesKey      = "adh:pages"
 	streamKey     = "adh:events"
-	streamMaxLen  = 10_000
+
+	schemaVersionKey    = "adh:schema:version"
+	requestIndexVersion = 2
+)
+
+var (
+	streamMaxLen = int64(10_000)
+	requestTTL   = 7 * 24 * time.Hour
 )
 
 func InitRedis() {
@@ -30,6 +37,9 @@ func InitRedis() {
 	ADDR := utils.GetEnv("REDIS_ADDR", "localhost")
 	PASS := utils.GetEnv("REDIS_PASSWORD", "")
 	DB, _ := strconv.Atoi(utils.GetEnv("REDIS_DB", "0"))
+
+	streamMaxLen = utils.GetEnvInt64("STREAM_MAX_LEN", 10_000)
+	requestTTL = time.Duration(utils.GetEnvInt64("REQUEST_TTL_HOURS", 168)) * time.Hour
 
 	logger.Debug("Redis configuration - ADDR: %s, PORT: %s, DB: %d", ADDR, PORT, DB)
 	logger.Info("Initializing Redis client")
@@ -62,11 +72,29 @@ func InitRedis() {
 
 	indexCtx, indexCancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer indexCancel()
-	err := createRequestIndex(indexCtx)
-	if err != nil {
-		logger.Fatal("Failed to create request index: %v", err)
+	if err := migrateRequestIndex(indexCtx); err != nil {
+		logger.Fatal("Failed to migrate request index: %v", err)
 	}
 	logger.Info("Redis client initialized")
+}
+
+func migrateRequestIndex(ctx context.Context) error {
+	current, err := client.Get(ctx, schemaVersionKey).Int()
+	if err != nil && err != redis.Nil {
+		return fmt.Errorf("read schema version: %w", err)
+	}
+	if current >= requestIndexVersion {
+		return createRequestIndex(ctx) // ensure the index exists (idempotent)
+	}
+
+	if err := client.Do(ctx, "FT.DROPINDEX", requestIndex).Err(); err != nil &&
+		!strings.Contains(strings.ToLower(err.Error()), "unknown index") {
+		return fmt.Errorf("drop stale index: %w", err)
+	}
+	if err := createRequestIndex(ctx); err != nil {
+		return err
+	}
+	return client.Set(ctx, schemaVersionKey, requestIndexVersion, 0).Err()
 }
 
 func migrateLegacyPages(ctx context.Context) error {
@@ -96,6 +124,12 @@ func createRequestIndex(ctx context.Context) error {
 		"$method", "AS", "method", "TEXT",
 		"$path", "AS", "path", "TEXT",
 		"$protocol", "AS", "protocol", "TEXT",
+
+		// Captured XSS beacon report fields, so operators can search by what the payload saw.
+		"$.report.uri", "AS", "report_uri", "TEXT",
+		"$.report.origin", "AS", "report_origin", "TEXT",
+		"$.report.referrer", "AS", "report_referrer", "TEXT",
+		"$.report.user_agent", "AS", "report_useragent", "TEXT",
 
 		"$contentlength", "AS", "content_length", "NUMERIC",
 		"$timestamp", "AS", "timestamp", "TEXT", "SORTABLE",
@@ -127,7 +161,7 @@ func AddRequest(value interface{}) (string, error) {
 
 	pipe := client.TxPipeline()
 	pipe.JSONSet(ctx, key, "$", value)
-	pipe.Expire(ctx, key, 7*24*time.Hour)
+	pipe.Expire(ctx, key, requestTTL)
 	pipe.XAdd(ctx, &redis.XAddArgs{
 		Stream: streamKey,
 		MaxLen: streamMaxLen,

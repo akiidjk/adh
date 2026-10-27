@@ -25,7 +25,7 @@ func TestClientIP(t *testing.T) {
 func TestLoggerRejectsOversizedBody(t *testing.T) {
 	called := false
 	handler := LoggerMiddleware(http.HandlerFunc(func(http.ResponseWriter, *http.Request) { called = true }))
-	request := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(strings.Repeat("a", maxRequestBody+1)))
+	request := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(strings.Repeat("a", int(maxRequestBody)+1)))
 	response := httptest.NewRecorder()
 
 	handler.ServeHTTP(response, request)

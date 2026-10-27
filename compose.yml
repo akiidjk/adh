@@ -13,6 +13,9 @@ services:
       - REDIS_ADDR=redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - MAX_REQUEST_BODY=${MAX_REQUEST_BODY:-10485760}
+      - REQUEST_TTL_HOURS=${REQUEST_TTL_HOURS:-168}
+      - STREAM_MAX_LEN=${STREAM_MAX_LEN:-10000}
     depends_on:
       redis:
         condition: service_healthy
@@ -38,6 +41,7 @@ services:
       - USER_NAME=${USER_NAME}
       - USER_PASSWORD=${USER_PASSWORD}
       - SECRET_KEY=${SECRET_KEY}
+      - TRUST_PROXY=${TRUST_PROXY:-false}
     depends_on:
       redis:
         condition: service_healthy
