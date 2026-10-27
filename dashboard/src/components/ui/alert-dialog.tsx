@@ -1,10 +1,31 @@
 'use client';
 
+import { buttonVariants } from '@cloudflare/kumo';
 import { cn } from 'cn';
 import { AlertDialog as AlertDialogPrimitive } from 'radix-ui';
 import * as React from 'react';
 
-import { Button } from '@/components/ui/button';
+type LegacyVariant = 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost';
+type LegacySize = 'default' | 'sm' | 'icon';
+
+const KUMO_VARIANT: Record<LegacyVariant, 'primary' | 'destructive' | 'outline' | 'secondary' | 'ghost'> = {
+  default: 'primary',
+  destructive: 'destructive',
+  outline: 'outline',
+  secondary: 'secondary',
+  ghost: 'ghost'
+};
+
+function actionButtonClass(variant: LegacyVariant, size: LegacySize, className?: string) {
+  return cn(
+    buttonVariants({
+      variant: KUMO_VARIANT[variant],
+      size: size === 'sm' ? 'sm' : 'base',
+      shape: size === 'icon' ? 'square' : 'base'
+    }),
+    className
+  );
+}
 
 function AlertDialog({ ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
   return <AlertDialogPrimitive.Root data-slot='alert-dialog' {...props} />;
@@ -124,12 +145,13 @@ function AlertDialogAction({
   variant = 'default',
   size = 'default',
   ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Action> &
-  Pick<React.ComponentProps<typeof Button>, 'variant' | 'size'>) {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Action> & { variant?: LegacyVariant; size?: LegacySize }) {
   return (
-    <Button variant={variant} size={size} asChild>
-      <AlertDialogPrimitive.Action data-slot='alert-dialog-action' className={cn(className)} {...props} />
-    </Button>
+    <AlertDialogPrimitive.Action
+      data-slot='alert-dialog-action'
+      className={actionButtonClass(variant, size, className)}
+      {...props}
+    />
   );
 }
 
@@ -138,12 +160,13 @@ function AlertDialogCancel({
   variant = 'outline',
   size = 'default',
   ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Cancel> &
-  Pick<React.ComponentProps<typeof Button>, 'variant' | 'size'>) {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Cancel> & { variant?: LegacyVariant; size?: LegacySize }) {
   return (
-    <Button variant={variant} size={size} asChild>
-      <AlertDialogPrimitive.Cancel data-slot='alert-dialog-cancel' className={cn(className)} {...props} />
-    </Button>
+    <AlertDialogPrimitive.Cancel
+      data-slot='alert-dialog-cancel'
+      className={actionButtonClass(variant, size, className)}
+      {...props}
+    />
   );
 }
 

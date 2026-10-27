@@ -1,61 +1,44 @@
-import { type VariantProps, cva } from 'class-variance-authority';
-import { cn } from 'cn';
-import { Slot } from 'radix-ui';
+'use client';
+
+import { Button as KumoButton } from '@cloudflare/kumo';
 import * as React from 'react';
 
-const buttonVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-  {
-    variants: {
-      variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
-        destructive:
-          'bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40',
-        outline:
-          'border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50',
-        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
-        link: 'text-primary underline-offset-4 hover:underline'
-      },
-      size: {
-        default: 'h-9 px-4 py-2 has-[>svg]:px-3',
-        xs: "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
-        sm: 'h-8 gap-1.5 rounded-md px-3 has-[>svg]:px-2.5',
-        lg: 'h-10 rounded-md px-6 has-[>svg]:px-4',
-        icon: 'size-9',
-        'icon-xs': "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
-        'icon-sm': 'size-8',
-        'icon-lg': 'size-10'
-      }
-    },
-    defaultVariants: {
-      variant: 'default',
-      size: 'default'
-    }
-  }
-);
+/**
+ * Thin adapter preserving the shadcn Button API used across the app, backed by Kumo's Button.
+ * Icon buttons (size="icon") become Kumo's square shape with the child passed as the `icon`
+ * prop; callers already provide aria-label. ponytail: adapter, not a fork — if call sites ever
+ * move to `@cloudflare/kumo` Button directly, delete this file.
+ */
+type LegacyVariant = 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost';
+type LegacySize = 'default' | 'sm' | 'icon';
 
-function Button({
-  className,
-  variant = 'default',
-  size = 'default',
-  asChild = false,
-  ...props
-}: React.ComponentProps<'button'> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean;
-  }) {
-  const Comp = asChild ? Slot.Root : 'button';
+export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: LegacyVariant;
+  size?: LegacySize;
+  loading?: boolean;
+  title?: React.ReactNode;
+};
 
-  return (
-    <Comp
-      data-slot='button'
-      data-variant={variant}
-      data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
-    />
-  );
+const VARIANT: Record<LegacyVariant, 'primary' | 'destructive' | 'outline' | 'secondary' | 'ghost'> = {
+  default: 'primary',
+  destructive: 'destructive',
+  outline: 'outline',
+  secondary: 'secondary',
+  ghost: 'ghost'
+};
+
+function Button({ variant = 'default', size = 'default', children, ...props }: ButtonProps) {
+  const kumoVariant = VARIANT[variant];
+  // Pass children through as children (not Kumo's `icon` prop, which expects a single icon and
+  // breaks on multi-child buttons). Icon buttons just get the square shape. A single cast past
+  // Kumo's discriminated union keeps the legacy call sites untouched.
+  const kumoProps = {
+    variant: kumoVariant,
+    children,
+    ...(size === 'icon' ? { shape: 'square', size: 'base' } : { size: size === 'sm' ? 'sm' : 'base' }),
+    ...props
+  };
+  return <KumoButton {...(kumoProps as React.ComponentProps<typeof KumoButton>)} />;
 }
 
-export { Button, buttonVariants };
+export { Button };
