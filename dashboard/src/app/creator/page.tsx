@@ -1,6 +1,7 @@
 'use client';
 
-import { AlertCircle, Info, X } from 'lucide-react';
+import { Banner } from '@cloudflare/kumo';
+import { X } from 'lucide-react';
 import * as React from 'react';
 
 import { ConfirmDialog } from '@/components/creator/confirm-dialog';
@@ -11,7 +12,6 @@ import { HeadersField } from '@/components/creator/headers-field';
 import { StatusCodeField } from '@/components/creator/status-code-field';
 import { Header } from '@/components/header';
 import { SavedPagesList } from '@/components/saved-pages-list';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { usePageForm } from '@/hooks/usePageForm';
@@ -62,10 +62,12 @@ export default function PageCreator() {
 
       {/* Error summary */}
       {hasErrors && (
-        <Alert variant='destructive' role='alert' aria-live='polite'>
-          <AlertCircle className='size-4' aria-hidden='true' />
-          <AlertDescription>
-            <span className='font-medium'>Fix the following errors before continuing:</span>
+        <Banner
+          variant='error'
+          role='alert'
+          aria-live='polite'
+          title='Fix the following errors before continuing:'
+          description={
             <ul className='mt-2 list-inside list-disc space-y-1'>
               {Object.entries(form.formState.errors).map(([field, error]) => (
                 <li key={field}>
@@ -78,8 +80,8 @@ export default function PageCreator() {
                 </li>
               )}
             </ul>
-          </AlertDescription>
-        </Alert>
+          }
+        />
       )}
 
       <div className='space-y-8 p-8'>
@@ -87,21 +89,23 @@ export default function PageCreator() {
           <form className='space-y-6' onSubmit={(e) => e.preventDefault()}>
             {/* Edit mode banner */}
             {isEditMode && (
-              <Alert className='border-blue-500 bg-blue-500/10'>
-                <Info className='size-4 text-blue-500' aria-hidden='true' />
-                <AlertDescription className='flex items-center justify-between'>
+              <Banner
+                variant='default'
+                description={
                   <span>
                     Editing page:{' '}
                     <code className='rounded bg-secondary px-1.5 py-0.5 font-mono text-foreground'>
                       /{originalEndpoint}
                     </code>
                   </span>
+                }
+                action={
                   <Button type='button' variant='ghost' size='sm' onClick={handleClear} className='h-auto gap-2 py-1'>
                     <X className='size-4' aria-hidden='true' />
                     Cancel Edit
                   </Button>
-                </AlertDescription>
-              </Alert>
+                }
+              />
             )}
 
             <EndpointField
