@@ -1,101 +1,121 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 @import 'tailwindcss';
+@source '../../node_modules/@cloudflare/kumo/dist/**/*.{js,jsx,ts,tsx}';
+@import '@cloudflare/kumo/styles/tailwind';
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Palette: "Slate Signal" — cool slate/navy neutrals with a teal-cyan signal accent.
+ * Dark-first; both modes meet WCAG AA for body text. next-themes sets `class` (shadcn
+ * tokens below) and `data-mode` (Kumo's light-dark() tokens) together.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #030712;
+  --background: #fbfcfd;
+  --foreground: #0b0e14;
   --card: #ffffff;
-  --card-foreground: #030712;
+  --card-foreground: #0b0e14;
   --popover: #ffffff;
-  --popover-foreground: #030712;
-  --primary: #7c3aed;
-  --primary-foreground: #f9fafb;
-  --secondary: #f3f4f6;
-  --secondary-foreground: #111827;
-  --muted: #f3f4f6;
-  --muted-foreground: #6b7280;
-  --accent: #f3f4f6;
-  --accent-foreground: #111827;
-  --destructive: #ef4444;
-  --destructive-foreground: #f9fafb;
-  --border: #e5e7eb;
-  --input: #e5e7eb;
-  --ring: #7c3aed;
-  --chart-1: #e76e50;
-  --chart-2: #2a9d90;
-  --chart-3: #274754;
-  --chart-4: #e8c468;
-  --chart-5: #f4a462;
-  --sidebar: #fbfbfb;
-  --sidebar-foreground: #252525;
-  --sidebar-primary: #343434;
-  --sidebar-primary-foreground: #fbfbfb;
-  --sidebar-accent: #f7f7f7;
-  --sidebar-accent-foreground: #343434;
-  --sidebar-border: #ebebeb;
-  --sidebar-ring: #b5b5b5;
+  --popover-foreground: #0b0e14;
+  --primary: #0d9488;
+  --primary-foreground: #ffffff;
+  --secondary: #eef1f5;
+  --secondary-foreground: #0b0e14;
+  --muted: #eef1f5;
+  --muted-foreground: #5b6472;
+  --accent: #e6faf5;
+  --accent-foreground: #0b3d37;
+  --destructive: #e11d48;
+  --destructive-foreground: #ffffff;
+  --border: #e4e8ef;
+  --input: #e4e8ef;
+  --ring: #0d9488;
+  --chart-1: #0d9488;
+  --chart-2: #0284c7;
+  --chart-3: #d97706;
+  --chart-4: #7c3aed;
+  --chart-5: #e11d48;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0b0e14;
+  --sidebar-primary: #0d9488;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eef1f5;
+  --sidebar-accent-foreground: #0b0e14;
+  --sidebar-border: #e4e8ef;
+  --sidebar-ring: #0d9488;
   --font-sans: Inter, sans-serif;
   --font-serif: Playfair Display, serif;
   --font-mono: JetBrains Mono, monospace;
-  --radius: 1.15rem;
-  --shadow-2xs: 0px 1px 13.5px 4px hsl(0 0% 0% / 0.14);
-  --shadow-xs: 0px 1px 13.5px 4px hsl(0 0% 0% / 0.14);
-  --shadow-sm: 0px 1px 13.5px 4px hsl(0 0% 0% / 0.28), 0px 1px 2px 3px hsl(0 0% 0% / 0.28);
-  --shadow: 0px 1px 13.5px 4px hsl(0 0% 0% / 0.28), 0px 1px 2px 3px hsl(0 0% 0% / 0.28);
-  --shadow-md: 0px 1px 13.5px 4px hsl(0 0% 0% / 0.28), 0px 2px 4px 3px hsl(0 0% 0% / 0.28);
-  --shadow-lg: 0px 1px 13.5px 4px hsl(0 0% 0% / 0.28), 0px 4px 6px 3px hsl(0 0% 0% / 0.28);
-  --shadow-xl: 0px 1px 13.5px 4px hsl(0 0% 0% / 0.28), 0px 8px 10px 3px hsl(0 0% 0% / 0.28);
-  --shadow-2xl: 0px 1px 13.5px 4px hsl(0 0% 0% / 0.7);
+  --radius: 0.625rem;
+  --shadow-2xs: 0px 1px 2px 0px hsl(222 47% 11% / 0.04);
+  --shadow-xs: 0px 1px 2px 0px hsl(222 47% 11% / 0.06);
+  --shadow-sm: 0px 1px 3px 0px hsl(222 47% 11% / 0.1), 0px 1px 2px -1px hsl(222 47% 11% / 0.1);
+  --shadow: 0px 1px 3px 0px hsl(222 47% 11% / 0.1), 0px 1px 2px -1px hsl(222 47% 11% / 0.1);
+  --shadow-md: 0px 4px 6px -1px hsl(222 47% 11% / 0.1), 0px 2px 4px -2px hsl(222 47% 11% / 0.1);
+  --shadow-lg: 0px 10px 15px -3px hsl(222 47% 11% / 0.1), 0px 4px 6px -4px hsl(222 47% 11% / 0.1);
+  --shadow-xl: 0px 20px 25px -5px hsl(222 47% 11% / 0.1), 0px 8px 10px -6px hsl(222 47% 11% / 0.1);
+  --shadow-2xl: 0px 25px 50px -12px hsl(222 47% 11% / 0.25);
 }
 
 .dark {
-  --background: #030712;
-  --foreground: #f9fafb;
-  --card: #030712;
-  --card-foreground: #f9fafb;
-  --popover: #030712;
-  --popover-foreground: #f9fafb;
-  --primary: #6d28d9;
-  --primary-foreground: #f9fafb;
-  --secondary: #1f2937;
-  --secondary-foreground: #f9fafb;
-  --muted: #1f2937;
-  --muted-foreground: #9ca3af;
-  --accent: #1f2937;
-  --accent-foreground: #f9fafb;
-  --destructive: #7f1d1d;
-  --destructive-foreground: #f9fafb;
-  --border: #1f2937;
-  --input: #1f2937;
-  --ring: #6d28d9;
-  --chart-1: #6d28d9;
-  --chart-2: #af57db;
-  --chart-3: #3127d9;
-  --chart-4: #af57db;
-  --chart-5: #7821ff;
-  --sidebar: #020714;
-  --sidebar-foreground: #f9fafb;
-  --sidebar-primary: #7821ff;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #af57db;
-  --sidebar-accent-foreground: #f4f4f5;
-  --sidebar-border: #1f2937;
-  --sidebar-ring: #d4d4d8;
+  --background: #0b0e14;
+  --foreground: #e6e9ef;
+  --card: #12161f;
+  --card-foreground: #e6e9ef;
+  --popover: #12161f;
+  --popover-foreground: #e6e9ef;
+  --primary: #2dd4bf;
+  --primary-foreground: #04231f;
+  --secondary: #1a2130;
+  --secondary-foreground: #e6e9ef;
+  --muted: #1a2130;
+  --muted-foreground: #8b94a3;
+  --accent: #142c2a;
+  --accent-foreground: #99f6e4;
+  --destructive: #fb7185;
+  --destructive-foreground: #1a0b0e;
+  --border: #1e2430;
+  --input: #1e2430;
+  --ring: #2dd4bf;
+  --chart-1: #2dd4bf;
+  --chart-2: #38bdf8;
+  --chart-3: #fbbf24;
+  --chart-4: #a78bfa;
+  --chart-5: #fb7185;
+  --sidebar: #0b0e14;
+  --sidebar-foreground: #e6e9ef;
+  --sidebar-primary: #2dd4bf;
+  --sidebar-primary-foreground: #04231f;
+  --sidebar-accent: #1a2130;
+  --sidebar-accent-foreground: #e6e9ef;
+  --sidebar-border: #1e2430;
+  --sidebar-ring: #2dd4bf;
   --font-sans: Inter, sans-serif;
   --font-serif: Playfair Display, serif;
   --font-mono: JetBrains Mono, monospace;
-  --radius: 1.15rem;
-  --shadow-2xs: 0px 1px 13.5px 4px hsl(0 0% 0% / 0.14);
-  --shadow-xs: 0px 1px 13.5px 4px hsl(0 0% 0% / 0.14);
-  --shadow-sm: 0px 1px 13.5px 4px hsl(0 0% 0% / 0.28), 0px 1px 2px 3px hsl(0 0% 0% / 0.28);
-  --shadow: 0px 1px 13.5px 4px hsl(0 0% 0% / 0.28), 0px 1px 2px 3px hsl(0 0% 0% / 0.28);
-  --shadow-md: 0px 1px 13.5px 4px hsl(0 0% 0% / 0.28), 0px 2px 4px 3px hsl(0 0% 0% / 0.28);
-  --shadow-lg: 0px 1px 13.5px 4px hsl(0 0% 0% / 0.28), 0px 4px 6px 3px hsl(0 0% 0% / 0.28);
-  --shadow-xl: 0px 1px 13.5px 4px hsl(0 0% 0% / 0.28), 0px 8px 10px 3px hsl(0 0% 0% / 0.28);
-  --shadow-2xl: 0px 1px 13.5px 4px hsl(0 0% 0% / 0.7);
+  --radius: 0.625rem;
+  --shadow-2xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.2);
+  --shadow-xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.3);
+  --shadow-sm: 0px 1px 3px 0px hsl(0 0% 0% / 0.4), 0px 1px 2px -1px hsl(0 0% 0% / 0.4);
+  --shadow: 0px 1px 3px 0px hsl(0 0% 0% / 0.4), 0px 1px 2px -1px hsl(0 0% 0% / 0.4);
+  --shadow-md: 0px 4px 6px -1px hsl(0 0% 0% / 0.45), 0px 2px 4px -2px hsl(0 0% 0% / 0.45);
+  --shadow-lg: 0px 10px 15px -3px hsl(0 0% 0% / 0.5), 0px 4px 6px -4px hsl(0 0% 0% / 0.5);
+  --shadow-xl: 0px 20px 25px -5px hsl(0 0% 0% / 0.55), 0px 8px 10px -6px hsl(0 0% 0% / 0.55);
+  --shadow-2xl: 0px 25px 50px -12px hsl(0 0% 0% / 0.7);
+}
+
+/*
+ * Re-point Kumo's brand tokens from Cloudflare orange to the "Slate Signal" teal accent so
+ * Kumo components match the rest of the app. These are the brand/accent tokens; semantic
+ * status tokens (success/danger/warning/info) keep Kumo's defaults.
+ */
+@theme {
+  --text-color-kumo-brand: light-dark(#0d9488, #2dd4bf);
+  --background-color-kumo-brand: light-dark(#0d9488, #2dd4bf);
+  --background-color-kumo-brand-hover: light-dark(#0f766e, #5eead4);
+  --border-color-kumo-brand: light-dark(#0d9488, #2dd4bf);
+  --ring-color-kumo-brand: light-dark(#0d9488, #2dd4bf);
 }
 
 @theme inline {

@@ -29,8 +29,9 @@ export default function RootLayout({
   return (
     <html lang='en' suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
-          {children}
+        <ThemeProvider attribute={['class', 'data-mode']} defaultTheme='system' enableSystem disableTransitionOnChange>
+          {/* isolation:isolate keeps Kumo's portaled overlays above app layout z-index */}
+          <div className='isolate'>{children}</div>
           <Toaster />
         </ThemeProvider>
       </body>

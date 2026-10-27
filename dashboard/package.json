@@ -13,8 +13,10 @@
     "format:fix": "prettier --write ."
   },
   "dependencies": {
+    "@cloudflare/kumo": "^2.16.0",
     "@hookform/resolvers": "^5.9.2",
     "@monaco-editor/react": "^4.7.0",
+    "@phosphor-icons/react": "^2.1.10",
     "@redis/json": "^5.12.1",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.2.6",
