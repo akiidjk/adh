@@ -1,10 +1,11 @@
 'use client';
 
-import { LogOut, Webhook } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react';
 
+import { LogoMark } from '@/components/logo-mark';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/ui/mode-toggle';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -39,11 +40,11 @@ export function Header({
     <header className='sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
       <div className='flex h-14 items-center gap-3 px-4 md:px-6'>
         {/* Brand */}
-        <Link href='/' className='flex items-center gap-2' aria-label='ADH home'>
+        <Link href='/' className='flex items-center gap-2' aria-label='adh home'>
           <span className='flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm'>
-            <Webhook className='size-[18px]' aria-hidden='true' />
+            <LogoMark className='h-[18px] w-auto' />
           </span>
-          <span className='hidden text-sm font-semibold tracking-tight sm:inline'>ADH</span>
+          <span className='hidden text-sm font-semibold tracking-tight sm:inline'>adh</span>
         </Link>
 
         {/* Primary nav */}

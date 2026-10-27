@@ -1,8 +1,8 @@
-import { Webhook } from 'lucide-react';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 
 import { login } from '@/app/login/actions';
+import { LogoMark } from '@/components/logo-mark';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -15,9 +15,9 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <div className='flex flex-col items-center gap-2 text-center'>
         <div className='flex size-11 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm'>
-          <Webhook className='size-6' aria-hidden='true' />
+          <LogoMark className='h-6 w-auto' />
         </div>
-        <span className='text-lg font-semibold tracking-tight'>ADH Dashboard</span>
+        <span className='text-lg font-semibold tracking-tight'>adh Dashboard</span>
       </div>
 
       <Card>
