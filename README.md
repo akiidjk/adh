@@ -17,9 +17,9 @@ The core of this project is a simple webhook server that listens for incoming HT
 
 - **Data Logging**: Logs requests including headers, cookies, body content, and user agent.
 - **Redis Integration**: Store incoming request data in Redis, making it easy to scale or manage.
-- **XSS Exploit Script**: Serve a simple exploit script for XSS attacks (stealed from xss.report).
+- **XSS Exploit Script**: Serve a simple exploit script for XSS attacks (adapted from xss.report).
 - **High customizability**: Customize the server to fit your needs.
-- **Search Bar Support**: Add a search bar for requests with ***RedisSearch syntax***.
+- **Search Bar Support**: Search requests with ***RedisSearch syntax***, including fields captured by the XSS report (e.g. `@report_uri`, `@report_origin`, `@report_referrer`).
 - **New page creator**: Create dynamic endpoints and custom pages for specific needs.
 
 ### 📊 Dashboard
@@ -96,7 +96,10 @@ The following environment variables are available for customization:
 - **USER_NAME**: Required username for the frontend/dashboard.
 - **USER_PASSWORD**: Password for the frontend/dashboard. There is no default.
 - **WEBHOOK_PUBLIC_URL**: Public webhook origin used by the optional XSS report script.
-- **TRUST_PROXY**: Set to `true` only when a trusted reverse proxy overwrites `X-Forwarded-For`.
+- **TRUST_PROXY**: Set to `true` only when a trusted reverse proxy overwrites `X-Forwarded-For`. The webhook uses it for client-IP rate limiting, and the dashboard for per-IP login throttling.
+- **MAX_REQUEST_BODY**: Maximum ingested request body, in bytes. Defaults to `10485760` (10 MiB).
+- **REQUEST_TTL_HOURS**: How long stored requests are retained. Defaults to `168` (7 days).
+- **STREAM_MAX_LEN**: Maximum events kept in the live stream. Defaults to `10000`.
 
 For an Internet-facing deployment, terminate HTTPS at a reverse proxy and use separate hostnames for the dashboard and webhook. Browser cookies are scoped by hostname, not port, so running both services on one hostname can send dashboard cookies to the request-capturing service.
 
@@ -106,7 +109,7 @@ The application health endpoints ping Redis. Compose waits for an authenticated 
 
 ### 📁 Log Storage
 
-Webhook logs are stored in the `webhook_logs` Docker volume and written to standard output. Request documents expire after seven days. The live Redis stream retains approximately the latest 10,000 event identifiers.
+Webhook logs are stored in the `webhook_logs` Docker volume and written to standard output; captured secrets (cookies, bodies, report payloads) are redacted from the logs and kept only in Redis. Request documents expire after seven days by default (`REQUEST_TTL_HOURS`), and the live Redis stream retains approximately the latest 10,000 event identifiers (`STREAM_MAX_LEN`).
 
 ### 🧪  Example Request
 
