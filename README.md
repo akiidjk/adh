@@ -30,6 +30,8 @@ Below are some screenshots of the dashboard:
 |-------------------------------------------|-------------------------------------------|
 | ![Dashboard3](images/adh-dashboard-3.png) | ![Dashboard4](images/adh-dashboard-4.png) |
 
+![Dashboard5](images/adh-dashboard-5.png)
+
 
 ### ⚙️ Installation
 
