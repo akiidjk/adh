@@ -1,3 +1,4 @@
+import { Webhook } from 'lucide-react';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 
@@ -12,36 +13,42 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
   const [state, loginAction] = useActionState(login, undefined);
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
+      <div className='flex flex-col items-center gap-2 text-center'>
+        <div className='flex size-11 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm'>
+          <Webhook className='size-6' aria-hidden='true' />
+        </div>
+        <span className='text-lg font-semibold tracking-tight'>ADH Dashboard</span>
+      </div>
+
       <Card>
         <CardHeader>
-          <CardTitle className='text-2xl'>Login</CardTitle>
-          <CardDescription>Enter your username below to login to your account</CardDescription>
+          <CardTitle className='text-xl'>Sign in</CardTitle>
+          <CardDescription>Enter your credentials to access the dashboard.</CardDescription>
         </CardHeader>
         <CardContent>
           <form action={loginAction}>
-            <div className='flex flex-col gap-6'>
+            <div className='flex flex-col gap-5'>
               <div className='grid gap-2'>
                 <Label htmlFor='username'>Username</Label>
-                {state?.errors?.username && <p className='text-red-500'>{state.errors.username}</p>}
-                <Input id='username' type='text' placeholder='akiidjk' required name='username' />
+                <Input
+                  id='username'
+                  type='text'
+                  placeholder='akiidjk'
+                  required
+                  name='username'
+                  autoComplete='username'
+                />
               </div>
               <div className='grid gap-2'>
-                <div className='flex items-center'>
-                  <Label htmlFor='password'>Password</Label>
-                  <a href='#' className='ml-auto inline-block text-sm underline-offset-4 hover:underline'>
-                    Forgot your password?
-                  </a>
-                </div>
-                {state?.errors?.password && <p className='text-red-500'>{state.errors.password}</p>}
-                <Input id='password' type='password' name='password' required />
+                <Label htmlFor='password'>Password</Label>
+                <Input id='password' type='password' name='password' required autoComplete='current-password' />
               </div>
+              {(state?.errors?.username || state?.errors?.password) && (
+                <p role='alert' className='text-sm font-medium text-destructive'>
+                  {state.errors.username ?? state.errors.password}
+                </p>
+              )}
               <SubmitButton />
-            </div>
-            <div className='mt-4 text-center text-sm'>
-              Don&apos;t have an account?{' '}
-              <a href='/signup' className='underline underline-offset-4'>
-                Sign up
-              </a>
             </div>
           </form>
         </CardContent>
@@ -50,11 +57,11 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
   );
 }
 
-function SubmitButton({ className }: { className?: string }) {
+function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button disabled={pending} type='submit' className={cn('', className)}>
-      Login
+    <Button disabled={pending} type='submit' className='w-full'>
+      {pending ? 'Signing in…' : 'Sign in'}
     </Button>
   );
 }
