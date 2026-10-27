@@ -1,8 +1,6 @@
-import { motion } from 'framer-motion';
 import { Copy, Download } from 'lucide-react';
 
 import { ReportDetails } from '@/components/ui/report';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RequestMessage } from '@/lib/models';
 import { toast } from '@/lib/toast';
@@ -11,8 +9,10 @@ import { Button } from './button';
 import { PrettyRequest } from './pretty-request';
 
 export default function Details({ message }: { message: RequestMessage }) {
+  const rawJson = JSON.stringify(message, null, 2);
+
   function downloadRawJson() {
-    const blob = new Blob([JSON.stringify(message, null, 2)], { type: 'application/json' });
+    const blob = new Blob([rawJson], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -22,44 +22,52 @@ export default function Details({ message }: { message: RequestMessage }) {
   }
 
   function copyRawJson() {
-    navigator.clipboard.writeText(JSON.stringify(message, null, 2));
+    navigator.clipboard.writeText(rawJson);
     toast('Raw JSON copied to clipboard');
   }
 
+  const hasReport = Boolean(message.report?.uri);
+
   return (
-    <>
-      <Tabs defaultValue='pretty'>
-        <TabsList>
-          <TabsTrigger value='pretty'>Pretty data</TabsTrigger>
-          <TabsTrigger value='raw'>Raw data</TabsTrigger>
-          {message.report.uri != '' && <TabsTrigger value='report'>Report</TabsTrigger>}
-        </TabsList>
-        <TabsContent value='pretty'>
-          <PrettyRequest data={message} />
-        </TabsContent>
-        <TabsContent value='raw'>
-          <div className='fixed right-12 z-10 mt-3 flex gap-2'>
-            <Button onClick={() => downloadRawJson()} size={'icon'} className=''>
-              <Download />
-            </Button>
-            <Button onClick={() => copyRawJson()} size={'icon'} className=''>
-              <Copy />
-            </Button>
+    <Tabs defaultValue='pretty' className='flex flex-col gap-4'>
+      <TabsList>
+        <TabsTrigger value='pretty'>Pretty</TabsTrigger>
+        <TabsTrigger value='raw'>Raw</TabsTrigger>
+        {hasReport && <TabsTrigger value='report'>Report</TabsTrigger>}
+      </TabsList>
+
+      <TabsContent value='pretty'>
+        <PrettyRequest data={message} />
+      </TabsContent>
+
+      <TabsContent value='raw'>
+        <div className='overflow-hidden rounded-lg border border-border'>
+          <div className='flex items-center justify-between border-b border-border bg-secondary/40 px-3 py-2'>
+            <span className='font-mono text-xs text-muted-foreground'>raw_request.json</span>
+            <div className='flex gap-1'>
+              <Button
+                onClick={downloadRawJson}
+                size='icon'
+                variant='ghost'
+                aria-label='Download raw JSON'
+                className='size-7'
+              >
+                <Download className='size-3.5' />
+              </Button>
+              <Button onClick={copyRawJson} size='icon' variant='ghost' aria-label='Copy raw JSON' className='size-7'>
+                <Copy className='size-3.5' />
+              </Button>
+            </div>
           </div>
-          <ScrollArea className='h-[calc(100vh-10rem)] rounded-lg'>
-            {message ? (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className='h-full overflow-auto'>
-                <pre className='rounded-lg bg-background p-4 text-sm whitespace-pre-wrap'>
-                  {JSON.stringify(message, null, 2)}
-                </pre>
-              </motion.div>
-            ) : null}
-          </ScrollArea>
-        </TabsContent>
+          <pre className='overflow-x-auto bg-card p-4 font-mono text-xs whitespace-pre-wrap'>{rawJson}</pre>
+        </div>
+      </TabsContent>
+
+      {hasReport && (
         <TabsContent value='report'>
           <ReportDetails report={message.report} />
         </TabsContent>
-      </Tabs>
-    </>
+      )}
+    </Tabs>
   );
 }

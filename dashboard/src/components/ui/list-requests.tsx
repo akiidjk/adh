@@ -1,39 +1,30 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
-import { Variants } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
+import { SkeletonLine } from '@cloudflare/kumo';
+import { formatDistanceToNow } from 'date-fns';
+import { Inbox, Trash2 } from 'lucide-react';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { RequestMessage } from '@/lib/models';
+import { cn } from '@/lib/utils';
 
-const cardVariants: Variants = {
-  initial: { opacity: 0, y: 20 },
-  animate: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] }
-  },
-  exit: {
-    opacity: 0,
-    x: -100,
-    transition: { duration: 0.3, ease: 'easeInOut' }
-  },
-  hover: { scale: 1.02 }
+// Consistent, token-friendly method colors (work in both themes) instead of saturated fills.
+const METHOD_COLOR: Record<string, string> = {
+  GET: 'bg-emerald-500/10 text-emerald-600 ring-emerald-500/20 dark:text-emerald-400',
+  POST: 'bg-sky-500/10 text-sky-600 ring-sky-500/20 dark:text-sky-400',
+  PUT: 'bg-amber-500/10 text-amber-600 ring-amber-500/20 dark:text-amber-400',
+  PATCH: 'bg-violet-500/10 text-violet-600 ring-violet-500/20 dark:text-violet-400',
+  DELETE: 'bg-rose-500/10 text-rose-600 ring-rose-500/20 dark:text-rose-400'
 };
+const methodColor = (m?: string) => METHOD_COLOR[m ?? ''] ?? 'bg-muted text-muted-foreground ring-border';
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
+function relativeTime(ts: string) {
+  try {
+    return formatDistanceToNow(new Date(ts), { addSuffix: true });
+  } catch {
+    return '';
   }
-};
+}
 
 interface ListRequestsProps {
   messages: RequestMessage[];
@@ -43,6 +34,7 @@ interface ListRequestsProps {
   onLoadMore: () => void;
   onDelete: (key: string) => Promise<void>;
   onSelect: (key: string) => void;
+  selectedKey?: string | null;
 }
 
 export default function ListRequests({
@@ -52,109 +44,104 @@ export default function ListRequests({
   hasMore,
   onLoadMore,
   onDelete,
-  onSelect
+  onSelect,
+  selectedKey
 }: ListRequestsProps) {
-  const truncateText = (text: string, maxLength: number) => {
-    if (!text) return '';
-    return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
-  };
+  if (loading) {
+    return (
+      <div className='flex flex-col gap-2 p-3' aria-busy='true' aria-label='Loading requests'>
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className='rounded-lg border border-border bg-card p-3'>
+            <SkeletonLine minWidth={35} maxWidth={65} />
+            <div className='mt-2'>
+              <SkeletonLine minWidth={50} maxWidth={85} />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (messages.length === 0) {
+    return (
+      <div className='flex h-[calc(100vh-9rem)] flex-col items-center justify-center gap-3 px-6 text-center'>
+        <div className='flex size-12 items-center justify-center rounded-full bg-muted'>
+          <Inbox className='size-6 text-muted-foreground' aria-hidden='true' />
+        </div>
+        <div className='space-y-1'>
+          <p className='font-medium'>No requests yet</p>
+          <p className='text-sm text-muted-foreground'>Incoming requests appear here in real time.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className='flex flex-col'>
-      <ScrollArea className='flex-1'>
-        {loading ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className='flex h-20 items-center justify-center gap-2'
-          >
-            <Loader2 className='animate-spin' />
-            <p>Loading requests...</p>
-          </motion.div>
-        ) : (
-          <motion.div
-            variants={containerVariants}
-            initial='hidden'
-            animate='show'
-            className='h-[calc(100vh-8rem)] space-y-2 pb-4'
-          >
-            <AnimatePresence>
-              {messages.length === 0 ? (
-                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className='py-8 text-center text-gray-500'>
-                  No requests found
-                </motion.p>
-              ) : (
-                messages.map((msg) => (
-                  <motion.div
-                    key={`${msg.key}-${msg.timestamp}`}
-                    variants={cardVariants}
-                    initial='initial'
-                    animate='animate'
-                    exit='exit'
-                    whileHover='hover'
-                    layout
-                  >
-                    <Card className='m-3 mr-6'>
-                      <CardHeader className='flex flex-row items-start justify-between'>
-                        <div>
-                          <CardTitle>
-                            {msg.address || 'Unknown address'}:{msg.port || 'Unknown port'}
-                          </CardTitle>
-                        </div>
-                        <div className='flex gap-2'>
-                          <Badge>{msg.protocol || 'HTTP'}</Badge>
-                          <Badge
-                            className={
-                              msg.method === 'GET'
-                                ? 'bg-green-500 text-white hover:bg-green-600'
-                                : msg.method === 'POST'
-                                  ? 'bg-blue-500 text-white hover:bg-blue-600'
-                                  : msg.method === 'DELETE'
-                                    ? 'bg-red-500 text-white hover:bg-red-600'
-                                    : msg.method === 'PUT'
-                                      ? 'bg-yellow-500 text-white hover:bg-yellow-600'
-                                      : 'bg-gray-500 text-white hover:bg-gray-600'
-                            }
-                          >
-                            {msg.method || 'UNKNOWN'}
-                          </Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <CardDescription className='space-y-2'>
-                          <p>Path: {truncateText(msg.path, 50)}</p>
-                          <p>User Agent: {truncateText(msg.useragent, 50)}</p>
-                        </CardDescription>
-                      </CardContent>
-                      <CardFooter className='flex justify-between gap-3'>
-                        <p className='text-sm text-muted-foreground'>{new Date(msg.timestamp).toLocaleString()}</p>
-                        <div className='flex gap-3'>
-                          <Button variant='destructive' size='sm' onClick={() => onDelete(msg.key)}>
-                            Delete
-                          </Button>
-                          <Button variant='outline' size='sm' onClick={() => onSelect(msg.key)}>
-                            Details
-                          </Button>
-                        </div>
-                      </CardFooter>
-                    </Card>
-                  </motion.div>
-                ))
-              )}
-            </AnimatePresence>
-            {hasMore && (
-              <Button
-                variant='outline'
-                className='mx-3 w-[calc(100%-2.25rem)]'
-                disabled={loadingMore}
-                onClick={onLoadMore}
+    <div className='h-[calc(100vh-8rem)] overflow-y-auto p-3'>
+      <ul className='space-y-1.5'>
+        {messages.map((msg) => {
+          const selected = msg.key === selectedKey;
+          return (
+            <li key={`${msg.key}-${msg.timestamp}`}>
+              <div
+                className={cn(
+                  'group relative rounded-lg border transition-colors',
+                  selected
+                    ? 'border-primary bg-accent/60 ring-1 ring-primary/30'
+                    : 'border-border bg-card hover:border-primary/40 hover:bg-accent/30'
+                )}
               >
-                {loadingMore ? 'Loading...' : 'Load more'}
-              </Button>
-            )}
-          </motion.div>
-        )}
-      </ScrollArea>
+                <button
+                  type='button'
+                  onClick={() => onSelect(msg.key)}
+                  className='block w-full rounded-lg p-3 pr-10 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring'
+                >
+                  <div className='flex items-center gap-2'>
+                    <span
+                      className={cn(
+                        'inline-flex min-w-[3.25rem] shrink-0 justify-center rounded px-1.5 py-0.5 font-mono text-[11px] font-semibold ring-1 ring-inset',
+                        methodColor(msg.method)
+                      )}
+                    >
+                      {msg.method || '—'}
+                    </span>
+                    <span className='flex-1 truncate font-mono text-sm' title={msg.path}>
+                      {msg.path || '/'}
+                    </span>
+                  </div>
+                  <div className='mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground'>
+                    <span className='truncate'>
+                      {msg.address || 'unknown'}
+                      {msg.port ? `:${msg.port}` : ''}
+                    </span>
+                    <span aria-hidden='true'>·</span>
+                    <span className='shrink-0' title={new Date(msg.timestamp).toLocaleString()}>
+                      {relativeTime(msg.timestamp)}
+                    </span>
+                  </div>
+                </button>
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  aria-label='Delete request'
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void onDelete(msg.key);
+                  }}
+                  className='absolute top-1.5 right-1.5 size-7 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive focus-visible:opacity-100'
+                >
+                  <Trash2 className='size-3.5' />
+                </Button>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+      {hasMore && (
+        <Button variant='outline' className='mt-2 w-full' disabled={loadingMore} onClick={onLoadMore}>
+          {loadingMore ? 'Loading…' : 'Load more'}
+        </Button>
+      )}
     </div>
   );
 }

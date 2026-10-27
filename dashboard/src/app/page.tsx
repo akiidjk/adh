@@ -1,10 +1,9 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { MousePointerClick } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
-import { LoadingOverlay } from '@/components/dashboard/loading-overlay';
 import Details from '@/components/ui/details';
 import ListRequests from '@/components/ui/list-requests';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
@@ -96,12 +95,9 @@ export default function Home() {
 
   const displayMessages = query.trim() ? searchResults : messages;
   const selectedMessage = selectedKey !== null ? displayMessages.find((msg) => msg.key === selectedKey) : null;
-  const showLoadingLayer = loading;
 
   return (
     <>
-      {showLoadingLayer && <LoadingOverlay loading={loading} isConnected={isConnected} />}
-
       <DashboardHeader
         totalCount={displayMessages.length}
         isConnected={isConnected}
@@ -120,23 +116,28 @@ export default function Home() {
             onLoadMore={loadMore}
             onDelete={handleDelete}
             onSelect={handleSelect}
+            selectedKey={selectedKey}
           />
         </ResizablePanel>
 
         <ResizableHandle withHandle />
 
-        <ResizablePanel
-          defaultSize={75}
-          minSize={25}
-          className='m-4 mt-3 h-full w-7/12 rounded-lg bg-gray-300 p-4 opacity-90 dark:bg-gray-700'
-        >
-          {selectedMessage ? (
-            <Details message={selectedMessage} />
-          ) : (
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className='py-8 text-center text-gray-500'>
-              Select a request to view details
-            </motion.p>
-          )}
+        <ResizablePanel defaultSize={75} minSize={30} className='p-3'>
+          <div className='h-[calc(100vh-8rem)] overflow-y-auto rounded-lg border border-border bg-card p-5'>
+            {selectedMessage ? (
+              <Details message={selectedMessage} />
+            ) : (
+              <div className='flex h-full flex-col items-center justify-center gap-3 text-center'>
+                <div className='flex size-12 items-center justify-center rounded-full bg-muted'>
+                  <MousePointerClick className='size-6 text-muted-foreground' aria-hidden='true' />
+                </div>
+                <div className='space-y-1'>
+                  <p className='font-medium'>No request selected</p>
+                  <p className='text-sm text-muted-foreground'>Pick a request on the left to inspect its details.</p>
+                </div>
+              </div>
+            )}
+          </div>
         </ResizablePanel>
       </ResizablePanelGroup>
     </>
