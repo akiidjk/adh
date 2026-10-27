@@ -112,7 +112,7 @@ export function SavedPagesList({ refreshTrigger, onEdit }: SavedPagesListProps) 
               aria-expanded={isOpen}
             >
               <div className='flex size-10 items-center justify-center rounded-lg bg-secondary'>
-                <FolderOpen className='size-5 text-accent' aria-hidden='true' />
+                <FolderOpen className='size-5 text-primary' aria-hidden='true' />
               </div>
               <div className='text-left'>
                 <h3 className='flex items-center gap-2 font-semibold text-foreground'>
@@ -221,7 +221,7 @@ export function SavedPagesList({ refreshTrigger, onEdit }: SavedPagesListProps) 
                                     <ul className='space-y-0.5'>
                                       {Object.entries(pageData.headers ?? {}).map(([key, value], i) => (
                                         <li key={i} className='font-mono text-xs'>
-                                          <span className='text-accent'>{key}</span>
+                                          <span className='text-primary'>{key}</span>
                                           <span className='text-muted-foreground'>: </span>
                                           <span>{value}</span>
                                         </li>

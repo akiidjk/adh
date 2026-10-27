@@ -1,108 +1,101 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { ChevronDown, LogOut } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { LogOut, Webhook } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import React from 'react';
 
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/ui/mode-toggle';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger
-} from './ui/dropdown-menu';
+import { cn } from '@/lib/utils';
 
 interface HeaderProps {
   title?: string;
   leftContent?: React.ReactNode;
   centerContent?: React.ReactNode;
   rightContent?: React.ReactNode;
-  showCreatorButton?: boolean;
+  showNav?: boolean;
   showModeToggle?: boolean;
   onLogout?: () => void | Promise<void>;
 }
 
+const NAV_ITEMS = [
+  { href: '/', label: 'Dashboard' },
+  { href: '/creator', label: 'Creator' }
+];
+
 export function Header({
-  title = 'Dashboard',
   leftContent,
   centerContent,
   rightContent,
-  showCreatorButton = true,
+  showNav = true,
   showModeToggle = true,
   onLogout
 }: HeaderProps) {
-  const router = useRouter();
-
-  const handleLogout = async () => {
-    if (onLogout) {
-      await onLogout();
-    }
-  };
+  const pathname = usePathname();
 
   return (
-    <motion.header
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className='sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'
-    >
-      <div className='flex items-center gap-4 px-6 py-4'>
-        {/* Left section - Title + optional content */}
-        <div className='flex shrink-0 items-center gap-4'>
-          <h1 className='text-xl font-bold'>{title}</h1>
-          {leftContent}
-        </div>
+    <header className='sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
+      <div className='flex h-14 items-center gap-3 px-4 md:px-6'>
+        {/* Brand */}
+        <Link href='/' className='flex items-center gap-2' aria-label='ADH home'>
+          <span className='flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm'>
+            <Webhook className='size-[18px]' aria-hidden='true' />
+          </span>
+          <span className='hidden text-sm font-semibold tracking-tight sm:inline'>ADH</span>
+        </Link>
 
-        {/* Center section - Flexible space for search, filters, etc. */}
-        {centerContent && <div className='flex min-w-0 flex-1 items-center justify-center'>{centerContent}</div>}
+        {/* Primary nav */}
+        {showNav && (
+          <nav className='ml-1 flex items-center gap-1'>
+            {NAV_ITEMS.map((item) => {
+              const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={active ? 'page' : undefined}
+                  className={cn(
+                    'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                    active
+                      ? 'bg-accent text-foreground'
+                      : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground'
+                  )}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        )}
 
-        {/* Spacer when no center content */}
-        {!centerContent && <div className='flex-1' />}
+        {leftContent && <div className='hidden items-center gap-2 lg:flex'>{leftContent}</div>}
 
-        {/* Right section - Custom content + fixed buttons */}
-        <div className='flex shrink-0 items-center gap-3'>
+        {centerContent ? (
+          <div className='flex min-w-0 flex-1 items-center justify-center'>{centerContent}</div>
+        ) : (
+          <div className='flex-1' />
+        )}
+
+        {/* Right cluster */}
+        <div className='flex shrink-0 items-center gap-2'>
           {rightContent}
           {showModeToggle && <ModeToggle />}
-
-          {showCreatorButton && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button size='icon' variant='outline' aria-label='Open page selector'>
-                  <ChevronDown className='size-4' />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align='end'>
-                <DropdownMenuLabel>Navigate to</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => router.push('/')}>Dashboard</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push('/creator')}>Creator</DropdownMenuItem>
-                {/*<DropdownMenuItem onClick={() => router.push("/settings")}>
-                  Settings
-                </DropdownMenuItem>*/}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-
           {onLogout && (
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button size='icon' variant='outline' onClick={handleLogout} aria-label='Logout'>
+                  <Button size='icon' variant='ghost' onClick={() => void onLogout()} aria-label='Log out'>
                     <LogOut className='size-4' />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>
-                  <p>Logout</p>
-                </TooltipContent>
+                <TooltipContent>Log out</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           )}
         </div>
       </div>
-    </motion.header>
+    </header>
   );
 }

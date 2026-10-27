@@ -167,7 +167,7 @@ export function ContentField({
                   'rounded-lg border-2 border-dashed transition-all duration-200',
                   'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none',
                   isDragOver
-                    ? 'border-accent bg-accent/10'
+                    ? 'border-primary bg-primary/10'
                     : 'border-border bg-input hover:border-muted-foreground hover:bg-secondary/50'
                 ].join(' ')}
                 style={{ minHeight }}
@@ -189,8 +189,8 @@ export function ContentField({
 
                 {uploadedFile ? (
                   <div className='flex flex-col items-center gap-3'>
-                    <div className='flex size-16 items-center justify-center rounded-full bg-accent/20'>
-                      <FileCode className='size-8 text-accent' aria-hidden='true' />
+                    <div className='flex size-16 items-center justify-center rounded-full bg-primary/10'>
+                      <FileCode className='size-8 text-primary' aria-hidden='true' />
                     </div>
                     <div className='text-center'>
                       <p className='font-medium text-foreground'>{uploadedFile.name}</p>

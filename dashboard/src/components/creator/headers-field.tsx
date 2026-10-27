@@ -42,13 +42,13 @@ export function HeadersField({ form, headerFields, onAppend, onRemove }: Headers
                 </p>
                 <ul className='mt-1 space-y-0.5 text-xs text-muted-foreground'>
                   <li>
-                    -<code className='text-accent'>Content-Type</code>: text/html
+                    -<code className='text-primary'>Content-Type</code>: text/html
                   </li>
                   <li>
-                    -<code className='text-accent'>X-Custom-Header</code>: value
+                    -<code className='text-primary'>X-Custom-Header</code>: value
                   </li>
                   <li>
-                    -<code className='text-accent'>Cache-Control</code>: no-cache
+                    -<code className='text-primary'>Cache-Control</code>: no-cache
                   </li>
                 </ul>
               </TooltipContent>

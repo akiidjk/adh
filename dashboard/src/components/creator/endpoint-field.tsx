@@ -49,8 +49,8 @@ export function EndpointField({ form, isValidEndpoint, endpointErrors, onCopy }:
                   </ul>
                   <p className='mt-2 text-xs'>
                     <span className='text-muted-foreground'>Examples: </span>
-                    <code className='text-accent'>/about</code>,{' '}
-                    <code className='text-accent'>/dashboard/settings</code>
+                    <code className='text-primary'>/about</code>,{' '}
+                    <code className='text-primary'>/dashboard/settings</code>
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -74,7 +74,7 @@ export function EndpointField({ form, isValidEndpoint, endpointErrors, onCopy }:
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Badge variant='secondary' className='cursor-help bg-accent/20 text-xs text-accent'>
+                        <Badge variant='secondary' className='cursor-help bg-primary/10 text-xs text-primary'>
                           <CheckCircle2 className='mr-1 size-3' aria-hidden='true' />
                           Valid
                         </Badge>

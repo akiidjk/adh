@@ -145,7 +145,7 @@ export function usePageForm(onSuccess?: () => void) {
       }
       toast.success(`Page ${isEditMode ? 'updated' : 'created'} successfully!`, {
         description: `Endpoint: ${values.endpoint}`,
-        icon: <CheckCircle2 className='size-4 text-accent' />
+        icon: <CheckCircle2 className='size-4 text-primary' />
       });
       handleClear();
       onSuccess?.();

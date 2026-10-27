@@ -80,7 +80,7 @@ export function ConfirmDialog({
                     <div className='space-y-0.5'>
                       {filledHeaders.map((h, i) => (
                         <div key={i} className='font-mono text-xs'>
-                          <span className='text-accent'>{h.key}</span>
+                          <span className='text-primary'>{h.key}</span>
                           <span className='text-muted-foreground'>: </span>
                           <span className='text-foreground'>{h.value}</span>
                         </div>
